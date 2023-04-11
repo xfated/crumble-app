@@ -46,8 +46,3 @@ export interface PlaceDetailRow {
     user_ratings_total: number;
     business_status: string;
 }
-
-export interface NearbyPlacesRes {
-	next_page_token: string;
-	results: PlaceDetailRow[];
-}

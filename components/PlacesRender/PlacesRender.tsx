@@ -1,5 +1,5 @@
 import { View, StyleSheet, Text, Pressable } from "react-native";
-import { PlaceDetailRow } from "../../../services/places/interfaces";
+import { PlaceDetailRow } from "../../services/places/interfaces";
 import { themeStyle } from "../styles";
 
 import PlaceCard from "./PlaceCard";
@@ -12,6 +12,13 @@ interface PlacesRenderProps {
 }
 
 const PlacesRender = (props: PlacesRenderProps) => {
+    if (props.curIdx >= props.places.length) {
+        return (
+            <View style={themeStyle.fitContainer}>
+                <Text>{"No more places :("}</Text>
+            </View>
+        )
+    }
     return (
         <View>
             { props.places[props.curIdx] ? 

@@ -1,5 +1,6 @@
 export enum Screens {
     HOME = "Crumble",
-    INDIVIDUAL = "Solo"
+    INDIVIDUAL = "Solo",
+    GROUP = "Group"
 }
   

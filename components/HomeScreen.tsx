@@ -1,20 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { StyleSheet, View, Text, TextInput } from "react-native";
 import { NavigationProp } from "@react-navigation/native"
 import SelectDropdown from "react-native-select-dropdown";
 
 import { Screens } from './constants';
-import CustomButton from "../ui_components/CustomButton";
+import CustomButton from "./ui_components/CustomButton";
 import { themeStyle } from "./styles";
-import { usePlace } from '../../contexts/PlacesContext';
-
+import { usePlace } from '../contexts/PlacesContext';
+import { createErrorAlert } from "./ui_components/ErrorAlert";
 
 export interface HomeScreenProps {
     navigation: NavigationProp<any,any>
 }
 
 const RADIUS_OPTIONS = [100, 200, 300, 400, 500]
-const DEFAULT_RADIUS = 100
+const DEFAULT_RADIUS = 300
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     
@@ -30,22 +30,45 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     // Start Group
     const [minToMatch, setMinToMatch] = useState("")
     const [radius, setRadius] = useState(DEFAULT_RADIUS)
+    const handleStartGroup = async () => {
+        place.resetPlaces()
+        const success = await place.createGroup(parseInt(minToMatch), radius)
+        if (success) {
+            navigation.navigate(Screens.GROUP)
+        }
+    }
+
+    useEffect(() => {
+        if (place.errorMessage !== "") {
+            createErrorAlert(place.errorMessage)
+        }
+    }, [place.errorMessage])
 
     // Join Group
     const [joinGroupId, setJoinGroupId] = useState("")
+    const handleJoinGroup = async () => {
+        place.resetPlaces()
+        const success = await place.joinGroup(joinGroupId)
+        if (success) {
+            navigation.navigate(Screens.GROUP)
+        } else {
+            createErrorAlert(place.errorMessage)
+        }
+    }
 
+    useEffect(() => {
+        console.log(place.errorMessage)
+    }, [place.errorMessage]
+    )
     return (
         <View style={themeStyle.screenContainer}>
             { !place.isLoading ?
                 <View>
-                    <View style={styles.pictureContainer}>
-                        <Text>Placeholder Image</Text>
-                    </View>
                     <View style={styles.inputContainer}>
-                        <View style={styles.soloContainer}>
+                        {/* <View style={styles.soloContainer}>
                             <CustomButton title="Explore Solo"
                                 onPress={handleSolo} />
-                        </View>
+                        </View> */}
                         <View style={styles.startGroupContainer}>
                             <View style={styles.inputBox}>
                                 <TextInput 
@@ -58,7 +81,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                     />
                                 <View style={themeStyle.dropdownContainer}>
                                     <View style={{width: "50%"}}>
-                                        <Text style={themeStyle.dropdownLabel}>Distance</Text>
+                                        <Text style={themeStyle.dropdownLabel}>Distance (m)</Text>
                                     </View>
                                     <View style={{width: "50%"}}>
                                         <SelectDropdown data={RADIUS_OPTIONS}
@@ -77,7 +100,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                             </View>
                             <View style={styles.buttonBox}>
                                 <CustomButton title="Start a group" // TBD
-                                    onPress={() => {}}/>
+                                    onPress={handleStartGroup}/>
                             </View>
                         </View>
                         <View style={styles.joinGroupContainer}>
@@ -88,14 +111,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                     onChangeText={(text) => {
                                         setJoinGroupId(text);
                                     }}
-                                    value={minToMatch} 
+                                    value={joinGroupId} 
                                     />
                             </View>
                             <View style={styles.buttonBox}>
                                 <CustomButton title="Join a group" // TBD
-                                    onPress={() => {}}/>
+                                    onPress={handleJoinGroup}/>
                             </View>
                         </View>
+                    </View>
+                    <View style={styles.pictureContainer}>
+                        <Text>Placeholder Image</Text>
                     </View>
                 </View>
                 :
@@ -109,7 +135,7 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
     pictureContainer: {
-        flex: 1,
+        flex: 2,
         justifyContent: "center",
         alignItems: "center"
     },
@@ -118,14 +144,14 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center"
     },
-    soloContainer: {
-        flex: 1,
-        width: "90%",
-        justifyContent: "center",
-        alignItems: "center",
-        borderBottomColor: "grey",
-        borderBottomWidth: 2
-    },
+    // soloContainer: {
+    //     flex: 1,
+    //     width: "90%",
+    //     justifyContent: "center",
+    //     alignItems: "center",
+    //     borderBottomColor: "grey",
+    //     borderBottomWidth: 2
+    // },
     startGroupContainer: {
         flex: 1,
         width: "90%",

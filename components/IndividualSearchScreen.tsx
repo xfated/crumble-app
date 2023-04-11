@@ -1,5 +1,5 @@
-import { usePlace } from "../../contexts/PlacesContext";
-import { View, Button, Text, FlatList, StyleSheet } from "react-native";
+import { usePlace } from "../contexts/PlacesContext";
+import { View, StyleSheet } from "react-native";
 import PlacesRender from "./PlacesRender/PlacesRender";
 import { themeStyle } from "./styles";
 

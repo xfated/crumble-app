@@ -1,5 +1,5 @@
 import { Pressable, Text } from "react-native";
-import { themeStyle } from "../homepage/styles";
+import { themeStyle } from "../styles";
 
 interface ButtonProps {
     title: string,

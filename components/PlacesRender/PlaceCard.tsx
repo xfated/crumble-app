@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, Linking, Pressable, Image } from "react-native";
-import Icon from 'react-native-vector-icons/FontAwesome';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import { PlaceDetailRow } from "../../../services/places/interfaces";
+import { PlaceDetailRow } from "../../services/places/interfaces";
 import { themeStyle } from "../styles";
 
 interface PlaceCardProps {
@@ -28,7 +28,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place }) => {
             <View style={styles.imageContainer}>
                 <Image style={styles.templateImage}
                     blurRadius={30}
-                    source={require('../../../assets/images/placePlaceholder.jpg')} />
+                    source={require('../../assets/images/placePlaceholder.jpg')} />
             </View>
             <View style={styles.descriptionContainer}>
                 <View style={styles.title}>
@@ -47,7 +47,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place }) => {
                                 borderRadius: 5,
                                 borderWidth: 1,
                             }}>
-                            <Icon name="map" size={25} color="#900" />
+                            <MaterialCommunityIcons name="map" size={25} color="#900" />
                         </Pressable>
                     }
                     <Text style={{ flex: 1 }}>{place.vicinity}</Text>
@@ -73,7 +73,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place }) => {
                 <View style={styles.reviews}>
                     <Text style={{
                         color: "#423e3c",
-                    }}>Recent reviews:</Text>
+                    }}>{place.reviews.length > 0 ? "Recent reviews:" : "No reviews found"}</Text>
                     <FlatList data={place.reviews}
                         keyExtractor={(item, index) => item.id.toString()}
                         alwaysBounceVertical={false}

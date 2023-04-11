@@ -1,7 +1,7 @@
 import 'react-native-url-polyfill/auto'
 
 import { createClient } from '@supabase/supabase-js'
-import { NearbyPlacesRes, PlaceDetailRow } from './interfaces'
+import { PlaceDetailRow } from './interfaces'
 import { FunctionsHttpError, FunctionsRelayError, FunctionsFetchError } from "@supabase/supabase-js";
 
 // Create a single supabase client for interacting with your database
@@ -10,7 +10,12 @@ const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 
 const supabase = createClient(SUPABASE_URL, ANON_KEY)
 
-export const getNearbyPlaces = async (category: string, lat: number, long: number, radius: number, nextPageToken: string): Promise<NearbyPlacesRes | null> => {
+interface NearbyPlacesRes {
+	next_page_token: string;
+	results: PlaceDetailRow[];
+}
+
+const getNearbyPlaces = async (category: string, lat: number, long: number, radius: number, nextPageToken: string): Promise<NearbyPlacesRes | null> => {
     const { data, error } = await supabase.functions.invoke('get-nearby-places', {
         body: {
                 category,
@@ -21,14 +26,117 @@ export const getNearbyPlaces = async (category: string, lat: number, long: numbe
             }
         })
     
-    if (error instanceof FunctionsHttpError) {
-        const errorMessage = await error.context.json()
-        console.error('Function returned an error', errorMessage)
-    } else if (error instanceof FunctionsRelayError) {
-        console.error('Relay error:', error.message)
-    } else if (error instanceof FunctionsFetchError) {
-        console.error('Fetch error:', error.message)
+    if (error) {
+        throw error
     }
-    
     return data
+}
+
+interface CreateGroupRes {
+    results: PlaceDetailRow[],
+    next_page_token: string,
+    group_id: string,
+}
+
+const createGroup = async (category: string, min_match: number, lat: number, long: number, radius: number): Promise<CreateGroupRes> => {
+    const { data, error } = await supabase.functions.invoke('create-group', {
+        body: {
+                category,
+                min_match,
+                lat,
+                long,
+                radius,
+            }
+        })
+    
+    if (error) {
+        throw error
+    }
+    return data
+}
+
+interface JoinGroupRes {
+    results: PlaceDetailRow[],
+    next_page_token: string,
+    group_id: string,
+    place_id?: string,
+}
+
+const joinGroup = async (group_id: string): Promise<JoinGroupRes> => {
+    console.log(group_id)
+    const { data, error } = await supabase.functions.invoke('join-group', {
+        body: {
+                group_id
+            }
+        })
+    
+    if (error) {
+        throw error
+    }
+    return data
+}
+
+interface GroupGetNearbyPlacesRes {
+    results: PlaceDetailRow[],
+    next_page_token: string,
+    group_id: string,
+}
+
+const groupGetNearbyPlaces = async (group_id: string, next_page_token: string): Promise<GroupGetNearbyPlacesRes> => {
+    const { data, error } = await supabase.functions.invoke('group-get-nearby-places', {
+        body: {
+                group_id,
+                next_page_token
+            }
+        })
+    
+    if (error) {
+        throw error
+    }
+    return data
+}
+
+
+interface AddGroupLikeRes {
+    place_id: string | null,
+}
+
+const groupAddLike = async (group_id: string, place_id: string): Promise<AddGroupLikeRes> => {
+    const { data, error } = await supabase.functions.invoke('group-add-like', {
+        body: {
+                group_id,
+                place_id
+            }
+        })
+    
+    if (error) {
+        throw error
+    }
+    return data
+}
+
+interface GroupHasMatchRes {
+    place_id: string | null
+}
+
+const groupHasMatch = async (group_id: string): Promise<GroupHasMatchRes> => {
+    const { data, error } = await supabase.functions.invoke('group-has-match', {
+        body: {
+                group_id
+            }
+        })
+    
+    if (error) {
+        throw error
+    }
+    return data
+}
+
+export const placeService = {
+    getNearbyPlaces,
+    createGroup,
+    joinGroup,
+    groupGetNearbyPlaces,
+    groupAddLike,
+    groupHasMatch
 }
