@@ -45,7 +45,9 @@ export default PlacesRender;
 const styles = StyleSheet.create({
     placeContainer: {
         height: "80%",
-        backgroundColor: "red",
+        width: "100%",
+        alignItems: "center",
+        justifyContent: "center"
     },
     inputContainer: {
         width: "100%",
@@ -53,7 +55,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-evenly",
         alignItems: "center",
-        backgroundColor: "grey",
     },
     likeButton: {
         backgroundColor: "#a7ebad",

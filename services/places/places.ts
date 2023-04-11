@@ -32,22 +32,3 @@ export const getNearbyPlaces = async (category: string, lat: number, long: numbe
     
     return data
 }
-
-export const getPlaceDetails = async (place_id: string): Promise<PlaceDetailRow | null> => {
-    const { data, error } = await supabase.functions.invoke('get-place-details', {
-        body: {
-                place_id
-            }
-        })
-    
-    if (error instanceof FunctionsHttpError) {
-        const errorMessage = await error.context.json()
-        console.error('Function returned an error', errorMessage)
-    } else if (error instanceof FunctionsRelayError) {
-        console.error('Relay error:', error.message)
-    } else if (error instanceof FunctionsFetchError) {
-        console.error('Fetch error:', error.message)
-    }
-    
-    return data
-}

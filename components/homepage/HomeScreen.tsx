@@ -1,14 +1,20 @@
 import { useState } from "react";
 import { StyleSheet, View, Text, TextInput } from "react-native";
-import { usePlace } from '../../contexts/PlacesContext';
 import { NavigationProp } from "@react-navigation/native"
+import SelectDropdown from "react-native-select-dropdown";
+
 import { Screens } from './constants';
 import CustomButton from "../ui_components/CustomButton";
 import { themeStyle } from "./styles";
+import { usePlace } from '../../contexts/PlacesContext';
+
 
 export interface HomeScreenProps {
     navigation: NavigationProp<any,any>
 }
+
+const RADIUS_OPTIONS = [100, 200, 300, 400, 500]
+const DEFAULT_RADIUS = 100
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     
@@ -23,6 +29,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
     // Start Group
     const [minToMatch, setMinToMatch] = useState("")
+    const [radius, setRadius] = useState(DEFAULT_RADIUS)
 
     // Join Group
     const [joinGroupId, setJoinGroupId] = useState("")
@@ -40,7 +47,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                 onPress={handleSolo} />
                         </View>
                         <View style={styles.startGroupContainer}>
-                            <View>
+                            <View style={styles.inputBox}>
                                 <TextInput 
                                     style={themeStyle.textInput} 
                                     placeholder="Number of People" 
@@ -49,23 +56,45 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                     }}
                                     value={minToMatch} 
                                     />
+                                <View style={themeStyle.dropdownContainer}>
+                                    <View style={{width: "50%"}}>
+                                        <Text style={themeStyle.dropdownLabel}>Distance</Text>
+                                    </View>
+                                    <View style={{width: "50%"}}>
+                                        <SelectDropdown data={RADIUS_OPTIONS}
+                                            onSelect={(selectedItem, idx) => {
+                                                setRadius(selectedItem)
+                                            }}
+                                            defaultButtonText={DEFAULT_RADIUS.toString()}
+                                            buttonStyle={themeStyle.dropDownButton}
+                                            buttonTextStyle={themeStyle.dropDownButtonText}
+                                            rowStyle={themeStyle.dropDownOption}
+                                            rowTextStyle={themeStyle.dropDownOptionText}
+                                            selectedRowStyle={themeStyle.dropDownOption}
+                                            />
+                                    </View>
+                                </View>
                             </View>
-                            <CustomButton title="Start a group" // TBD
-                                onPress={() => {}}/>
+                            <View style={styles.buttonBox}>
+                                <CustomButton title="Start a group" // TBD
+                                    onPress={() => {}}/>
+                            </View>
                         </View>
                         <View style={styles.joinGroupContainer}>
-                            <View>
+                            <View style={styles.inputBox}>
                                 <TextInput 
                                     style={themeStyle.textInput} 
-                                    placeholder="Number of People" 
+                                    placeholder="Group ID" 
                                     onChangeText={(text) => {
-                                        setMinToMatch(text.replace(/[^0-9]/g, ''));
+                                        setJoinGroupId(text);
                                     }}
                                     value={minToMatch} 
                                     />
                             </View>
-                            <CustomButton title="Join a group" // TBD
-                                onPress={() => {}}/>
+                            <View style={styles.buttonBox}>
+                                <CustomButton title="Join a group" // TBD
+                                    onPress={() => {}}/>
+                            </View>
                         </View>
                     </View>
                 </View>
@@ -112,5 +141,14 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-evenly",
         alignItems: "center",
+    },
+    inputBox: {
+        width: "50%",
+        height: "60%",
+        justifyContent: "space-around",
+        alignItems: "center"
+    },
+    buttonBox: {
+        width: "50%"
     }
 })

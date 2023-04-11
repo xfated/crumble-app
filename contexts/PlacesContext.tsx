@@ -1,11 +1,11 @@
 import { createContext, useContext } from "react";
 import * as Location from 'expo-location';
 import { useState, useEffect } from 'react';
-import { Place, PlaceDetailRow } from "../services/places/interfaces";
-import { getNearbyPlaces, getPlaceDetails } from "../services/places/places";
+import { PlaceDetailRow } from "../services/places/interfaces";
+import { getNearbyPlaces } from "../services/places/places";
 
 type PlacesContextType = {
-    nearbyPlaceDetails: PlaceDetailRow[];
+    nearbyPlacesDetails: PlaceDetailRow[];
     location: Location.LocationObject | null;
     reqLocPerms: () => Promise<void>;
     fetchNearbyPlaces: (nextPageToken: string) => Promise<boolean>;
@@ -21,10 +21,8 @@ interface PlacesContextProps {
     children?: React.ReactNode;
 }
 
-const PLACE_DETAIL_FETCH_BUFFER = 5
-
 const PlaceContext = createContext<PlacesContextType>({
-    nearbyPlaceDetails: [],
+    nearbyPlacesDetails: [],
     location: null,
     reqLocPerms: async () => {},
     fetchNearbyPlaces: async (nextPageToken: string) => { return false},
@@ -57,13 +55,10 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     // NEARBY PLACES UTILS
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const [nearbyPlaces, setNearbyPlaces] = useState<Place[]>([]);
-    const [nearbyPlaceDetails, setNearbyPlaceDetails] = useState<PlaceDetailRow[]>([])
+    const [nearbyPlacesDetails, setNearbyPlacesDetails] = useState<PlaceDetailRow[]>([])
     const [nextPageToken, setNextPageToken] = useState("");
-    const updateNearbyPlaces = (places: Place[]) => {
-        console.log(nearbyPlaces.map(x => x.place_id))
-        console.log(places.map(x => x.place_id))
-        setNearbyPlaces(prev => [...prev, ...places])
+    const updateNearbyPlacesDetails = (places: PlaceDetailRow[]) => {
+        setNearbyPlacesDetails(prev => [...prev, ...places])
     }
     const fetchNearbyPlaces = async (nextPageToken: string): Promise<boolean> => {
         if (!location) {
@@ -78,11 +73,8 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
             await getNearbyPlaces("restaurant", latitude, longitude, 500, nextPageToken)
                 .then((res) => {
                     if (res !== null) {
-                        updateNearbyPlaces(res.results)
+                        updateNearbyPlacesDetails(res.results)
                         setNextPageToken(res.next_page_token ?? "")
-                        
-                        // start populating nearbyPlaceDetails
-                        fetchPlaceDetails(res.results)
                     }
                 })
                 .catch((err: unknown) => {
@@ -103,41 +95,22 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     const [curPlaceIdx, setCurPlaceIdx] = useState(0);
     const goNextPlace = async () => {
         setCurPlaceIdx(prev => prev + 1);
-        if (curPlaceIdx >= nearbyPlaces.length - 10 && nextPageToken !== "") { // fetch more
+        if (curPlaceIdx === nearbyPlacesDetails.length - 10 && nextPageToken !== "") { // fetch more
             await fetchNearbyPlaces(nextPageToken);
         }
     }
 
-    // Fetch nearby place details when required
-    const fetchPlaceDetails = async (places: Place[]) => {
-        let newPlaceDetails: PlaceDetailRow[] = []
-        // console.log("fetchPlaceDetails for", places.map(x => x.place_id))
-        for (const place of places) {
-            const placeDetail = await getPlaceDetails(place.place_id)
-            if (placeDetail && !nearbyPlaceDetails.some(e => e.place_id === placeDetail.place_id)) { // if is not already inside
-                newPlaceDetails.push(placeDetail)
-            }
-        }
-        setNearbyPlaceDetails(prev => [...prev, ...newPlaceDetails])
-    }
-    // useEffect(() => {
-    //     if (curPlaceIdx > 0 && nearbyPlaces.length > 0) {
-    //         const nextVal = curPlaceIdx + PLACE_DETAIL_FETCH_BUFFER
-    //         fetchPlaceDetails(nearbyPlaces.slice(nearbyPlaceDetails.length, nextVal + 1))
-    //     }
-    // }, [curPlaceIdx, nearbyPlaces])
 
     const resetPlaces = () => {
         setCurPlaceIdx(0);
-        setNearbyPlaces([]);
-        setNearbyPlaceDetails([]);
+        setNearbyPlacesDetails([]);
         setNextPageToken("");
     }
 
     return (
         <PlaceContext.Provider
             value={{
-                nearbyPlaceDetails,
+                nearbyPlacesDetails,
                 location,
                 reqLocPerms,
                 fetchNearbyPlaces,

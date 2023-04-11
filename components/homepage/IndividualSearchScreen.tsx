@@ -18,7 +18,7 @@ const IndividualSearchScreen = () => {
     return (
         <View style={themeStyle.screenContainer}>
             <PlacesRender
-                places={places.nearbyPlaceDetails}
+                places={places.nearbyPlacesDetails}
                 curIdx={places.curPlaceIdx}
                 handleLike={handleLike}
                 handleDislike={handleDislike} />
