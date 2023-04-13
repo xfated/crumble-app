@@ -2,9 +2,8 @@
 export interface PhotoRow {
     id?: number;
     created_at?: number;
-	height: number;
-	width: number;
-	photo_reference: string;
+	place_id: string;
+	data_url: string;
 }
 
 export interface ReviewRow {
@@ -28,6 +27,7 @@ export interface PlaceDetailRow {
 	lat: number,
     long: number,
 	formatted_address: string;
+	photo: string;
     photos: PhotoRow[];
     reviews: ReviewRow[];
 	dine_in: boolean;

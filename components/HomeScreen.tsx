@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { StyleSheet, View, Text, TextInput } from "react-native";
+import { useState, useEffect, version } from "react";
+import { StyleSheet, View, Text, TextInput, Image, Dimensions, useWindowDimensions } from "react-native";
 import { NavigationProp } from "@react-navigation/native"
 import SelectDropdown from "react-native-select-dropdown";
 
@@ -8,31 +8,61 @@ import CustomButton from "./ui_components/CustomButton";
 import { themeStyle } from "./styles";
 import { usePlace } from '../contexts/PlacesContext';
 import { createErrorAlert } from "./ui_components/ErrorAlert";
+import Spinner from "react-native-loading-spinner-overlay";
+import { placeService } from "../services/places/places";
+import InvalidVersionModal from "./ui_components/InvalidVersionModal";
 
 export interface HomeScreenProps {
     navigation: NavigationProp<any,any>
 }
 
-const RADIUS_OPTIONS = [100, 200, 300, 400, 500]
-const DEFAULT_RADIUS = 300
+const RADIUS_OPTIONS = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+const DEFAULT_RADIUS = 400
+const CATEGORY_OPTIONS = ["food", "takeaway", "bars", "attractions"]
+const CATEGORY_MAP: {[val:string]: string} = {
+    "food": "restaurant",
+    "takeaway": "meal_takeaway",
+    "bars": "bar",
+    "attractions": "tourist_attraction"
+}
+const DEFAULT_CATEGORY = "food"
+const screenWidth = Dimensions.get('window').width;
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-    
     const place = usePlace();
-    const handleSolo = async () => {
-        place.resetPlaces();
-        const success = await place.fetchNearbyPlaces("");
-        if (success) {
-            navigation.navigate(Screens.INDIVIDUAL);
-        }
-    }
+    const {fontScale} = useWindowDimensions()
+    const styles = makeStyles(fontScale)
+
+    // const handleSolo = async () => {
+    //     place.resetPlaces();
+    //     const success = await place.fetchNearbyPlaces("");
+    //     if (success) {
+    //         navigation.navigate(Screens.INDIVIDUAL);
+    //     }
+    // }
+
+    // Check versioning
+    const [versionIsValid, setVersionIsValid] = useState(true);
+    useEffect(() => {
+        (async () => {
+            const response = await placeService.checkVersion()
+            if (response.success && response.data !== null) {
+                setVersionIsValid(response.data.result)
+            }
+        })();
+    }, [])
 
     // Start Group
     const [minToMatch, setMinToMatch] = useState("")
     const [radius, setRadius] = useState(DEFAULT_RADIUS)
+    const [category, setCategory] = useState(DEFAULT_CATEGORY)
     const handleStartGroup = async () => {
         place.resetPlaces()
-        const success = await place.createGroup(parseInt(minToMatch), radius)
+        if (minToMatch.length === 0) {
+            createErrorAlert("Please specify number of people")
+            return
+        }
+        const success = await place.createGroup(parseInt(minToMatch), radius, category)
         if (success) {
             navigation.navigate(Screens.GROUP)
         }
@@ -48,29 +78,33 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     const [joinGroupId, setJoinGroupId] = useState("")
     const handleJoinGroup = async () => {
         place.resetPlaces()
+        if (joinGroupId.length !== 6) {
+            createErrorAlert("Invalid group ID")
+            return
+        }
         const success = await place.joinGroup(joinGroupId)
         if (success) {
             navigation.navigate(Screens.GROUP)
-        } else {
-            createErrorAlert(place.errorMessage)
         }
     }
-
-    useEffect(() => {
-        console.log(place.errorMessage)
-    }, [place.errorMessage]
-    )
+    
     return (
         <View style={themeStyle.screenContainer}>
-            { !place.isLoading ?
-                <View>
-                    <View style={styles.inputContainer}>
-                        {/* <View style={styles.soloContainer}>
-                            <CustomButton title="Explore Solo"
-                                onPress={handleSolo} />
-                        </View> */}
-                        <View style={styles.startGroupContainer}>
-                            <View style={styles.inputBox}>
+            <Spinner
+                visible={place.isLoading}
+                textContent={'Loading...'}
+                textStyle={styles.spinnerTextStyle}
+            />
+            <InvalidVersionModal isVisible={!versionIsValid} />
+            <View>
+                <View style={styles.inputContainer}>
+                    {/* <View style={styles.soloContainer}>
+                        <CustomButton title="Explore Solo"
+                            onPress={handleSolo} />
+                    </View> */}
+                    <View style={styles.startGroupContainer}>
+                        <View style={styles.inputBox}>
+                            <View style={styles.inputWrapper}>
                                 <TextInput 
                                     style={themeStyle.textInput} 
                                     placeholder="Number of People" 
@@ -79,6 +113,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                     }}
                                     value={minToMatch} 
                                     />
+                            </View>
+                            <View style={styles.inputWrapper}>
                                 <View style={themeStyle.dropdownContainer}>
                                     <View style={{width: "50%"}}>
                                         <Text style={themeStyle.dropdownLabel}>Distance (m)</Text>
@@ -98,13 +134,35 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                     </View>
                                 </View>
                             </View>
-                            <View style={styles.buttonBox}>
-                                <CustomButton title="Start a group" // TBD
-                                    onPress={handleStartGroup}/>
+                            <View style={styles.inputWrapper}>
+                                <View style={themeStyle.dropdownContainer}>
+                                    <View style={{width: "40%"}}>
+                                        <Text style={themeStyle.dropdownLabel}>Category</Text>
+                                    </View>
+                                    <View style={{width: "60%"}}>
+                                        <SelectDropdown data={CATEGORY_OPTIONS}
+                                            onSelect={(selectedItem, idx) => {
+                                                setCategory(CATEGORY_MAP[selectedItem])
+                                            }}
+                                            defaultButtonText={DEFAULT_CATEGORY.toString()}
+                                            buttonStyle={themeStyle.dropDownButton}
+                                            buttonTextStyle={themeStyle.dropDownButtonText}
+                                            rowStyle={themeStyle.dropDownOption}
+                                            rowTextStyle={themeStyle.dropDownOptionText}
+                                            selectedRowStyle={themeStyle.dropDownOption}
+                                            />
+                                    </View>
+                                </View>
                             </View>
                         </View>
-                        <View style={styles.joinGroupContainer}>
-                            <View style={styles.inputBox}>
+                        <View style={styles.buttonBox}>
+                            <CustomButton title="Start a group" // TBD
+                                onPress={handleStartGroup}/>
+                        </View>
+                    </View>
+                    <View style={styles.joinGroupContainer}>
+                        <View style={styles.inputBox}>
+                            <View style={{width: "100%", height: "60%"}}>
                                 <TextInput 
                                     style={themeStyle.textInput} 
                                     placeholder="Group ID" 
@@ -114,36 +172,45 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                     value={joinGroupId} 
                                     />
                             </View>
-                            <View style={styles.buttonBox}>
-                                <CustomButton title="Join a group" // TBD
-                                    onPress={handleJoinGroup}/>
-                            </View>
+                        </View>
+                        <View style={styles.buttonBox}>
+                            <CustomButton title="Join a group" // TBD
+                                onPress={handleJoinGroup}/>
                         </View>
                     </View>
-                    <View style={styles.pictureContainer}>
-                        <Text>Placeholder Image</Text>
-                    </View>
                 </View>
-                :
-                <Text>Loading</Text>
-            }
+                <View style={styles.infoContainer}>
+                    <Image
+                        style={styles.tutorialImage}
+                        source={require('../assets/images/tutorial.png')}
+                        resizeMode={"contain"}
+                        />
+                    {/* <View style={{backgroundColor: "rgba(255,0,0,0.2)"}}>
+                        <Tutorial width={screenWidth} height={screenWidth}/>
+                    </View> */}
+                </View>
+            </View>
         </View>
     )
 }
 
 export default HomeScreen;
 
-const styles = StyleSheet.create({
-    pictureContainer: {
-        flex: 2,
-        justifyContent: "center",
-        alignItems: "center"
+const makeStyles = (fontScale: number) => StyleSheet.create({
+    spinnerTextStyle: {
+        color: '#FFF'
     },
     inputContainer: {
-        flex: 3,
+        height: "40%",
         justifyContent: "center",
         alignItems: "center"
     },
+    infoContainer: {
+        width: screenWidth,
+        height: "60%",
+        justifyContent: "center",
+        alignItems: "center",
+    }, 
     // soloContainer: {
     //     flex: 1,
     //     width: "90%",
@@ -153,7 +220,7 @@ const styles = StyleSheet.create({
     //     borderBottomWidth: 2
     // },
     startGroupContainer: {
-        flex: 1,
+        flex: 2,
         width: "90%",
         flexDirection: "row",
         justifyContent: "space-evenly",
@@ -169,12 +236,25 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     inputBox: {
-        width: "50%",
-        height: "60%",
-        justifyContent: "space-around",
+        width: "60%",
+        height: "80%",
+        justifyContent: "space-evenly",
         alignItems: "center"
     },
+    inputWrapper: {
+        flex: 1, 
+        width: "100%", 
+        paddingTop: 5,
+        paddingBottom: 5,
+    },
     buttonBox: {
-        width: "50%"
+        width: "40%"
+    },
+    tutorialImage: {
+        height: "90%",
+        maxHeight: screenWidth * 0.9,
+        aspectRatio: 1,
+        margin: 5,
+        borderRadius: 5,
     }
 })
