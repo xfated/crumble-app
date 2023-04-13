@@ -2,14 +2,14 @@ import 'react-native-url-polyfill/auto'
 
 import { createClient } from '@supabase/supabase-js'
 import { PlaceDetailRow } from './interfaces'
-import { FunctionsHttpError, FunctionsRelayError, FunctionsFetchError } from "@supabase/supabase-js";
+import Constants from 'expo-constants';
 
 // Create a single supabase client for interacting with your database
-const SUPABASE_URL = "https://bcrqmjamhjxtdittmwhf.supabase.co"
-const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjcnFtamFtaGp4dGRpdHRtd2hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODExMDQ0NTEsImV4cCI6MTk5NjY4MDQ1MX0.GyD6t8RXw1u9iB5VColnV7QAJ4WhsRRVXU9lM-dSnHA"
+const SUPABASE_URL = Constants.expoConfig?.extra?.SUPABASE_URL ?? ""
+const SUPABASE_ANON_KEY = Constants.expoConfig?.extra?.SUPABASE_ANON_KEY ?? ""
 const CURRENT_VERSION = "1"
 
-const supabase = createClient(SUPABASE_URL, ANON_KEY)
+const supabase = createClient(SUPABASE_URL ?? "", SUPABASE_ANON_KEY ?? "")
 
 interface ApiResponse<T> {
     success: boolean;

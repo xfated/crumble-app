@@ -62,7 +62,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             createErrorAlert("Please specify number of people")
             return
         }
-        const success = await place.createGroup(parseInt(minToMatch), radius, category)
+        const success = await place.createGroup(parseInt(minToMatch), radius, CATEGORY_MAP[category])
         if (success) {
             navigation.navigate(Screens.GROUP)
         }
@@ -108,6 +108,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                 <TextInput 
                                     style={themeStyle.textInput} 
                                     placeholder="Number of People" 
+                                    placeholderTextColor={"grey"}
                                     onChangeText={(text) => {
                                         setMinToMatch(text.replace(/[^0-9]/g, ''));
                                     }}
@@ -142,7 +143,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                     <View style={{width: "60%"}}>
                                         <SelectDropdown data={CATEGORY_OPTIONS}
                                             onSelect={(selectedItem, idx) => {
-                                                setCategory(CATEGORY_MAP[selectedItem])
+                                                setCategory(selectedItem)
                                             }}
                                             defaultButtonText={DEFAULT_CATEGORY.toString()}
                                             buttonStyle={themeStyle.dropDownButton}
@@ -166,6 +167,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                 <TextInput 
                                     style={themeStyle.textInput} 
                                     placeholder="Group ID" 
+                                    placeholderTextColor={"grey"}
                                     onChangeText={(text) => {
                                         setJoinGroupId(text);
                                     }}

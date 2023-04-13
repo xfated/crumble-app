@@ -139,7 +139,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
                 setErrorMessage("")
             } else {
                 console.log(response.message)
-                setErrorMessage("Unable to create group. Please try again later");
+                setErrorMessage("Server is facing too many requests. Please try again later");
                 setIsLoading(false);
                 return false;
             }
