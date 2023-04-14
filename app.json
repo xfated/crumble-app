@@ -31,10 +31,14 @@
     },
     "plugins": [
       [
-        "expo-location",
+        "expo-location"
+      ],
+      [
+        "expo-build-properties",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
-          "isAndroidBackgroundLocationEnabled": "Allow $(PRODUCT_NAME) to use your location."
+          "android": {
+            "enableProguardInReleaseBuilds": true
+          }
         }
       ]
     ]
