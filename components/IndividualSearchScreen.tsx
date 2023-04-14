@@ -21,7 +21,8 @@ const IndividualSearchScreen = () => {
                 places={places.nearbyPlacesDetails}
                 curIdx={places.curPlaceIdx}
                 handleLike={handleLike}
-                handleDislike={handleDislike} />
+                handleDislike={handleDislike} 
+                userLoc={places.location}/>
         </View>
     )
 }

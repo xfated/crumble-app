@@ -1,4 +1,4 @@
-import { useState, useEffect, version } from "react";
+import { useState, useEffect } from "react";
 import { StyleSheet, View, Text, TextInput, Image, Dimensions, useWindowDimensions } from "react-native";
 import { NavigationProp } from "@react-navigation/native"
 import SelectDropdown from "react-native-select-dropdown";
@@ -16,7 +16,7 @@ export interface HomeScreenProps {
     navigation: NavigationProp<any,any>
 }
 
-const RADIUS_OPTIONS = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+const RADIUS_OPTIONS = [100, 200, 300, 400, 500, 700, 1000, 2000, 3000, 5000]
 const DEFAULT_RADIUS = 400
 const CATEGORY_OPTIONS = ["food", "takeaway", "bars", "attractions"]
 const CATEGORY_MAP: {[val:string]: string} = {
@@ -57,11 +57,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     const [radius, setRadius] = useState(DEFAULT_RADIUS)
     const [category, setCategory] = useState(DEFAULT_CATEGORY)
     const handleStartGroup = async () => {
-        place.resetPlaces()
         if (minToMatch.length === 0) {
             createErrorAlert("Please specify number of people")
             return
         }
+        place.resetPlaces()
         const success = await place.createGroup(parseInt(minToMatch), radius, CATEGORY_MAP[category])
         if (success) {
             navigation.navigate(Screens.GROUP)
@@ -77,11 +77,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     // Join Group
     const [joinGroupId, setJoinGroupId] = useState("")
     const handleJoinGroup = async () => {
-        place.resetPlaces()
+        if (joinGroupId === place.groupId) {
+            navigation.navigate(Screens.GROUP)
+            return;
+        }
         if (joinGroupId.length !== 6) {
             createErrorAlert("Invalid group ID")
             return
         }
+        place.resetPlaces()
         const success = await place.joinGroup(joinGroupId)
         if (success) {
             navigation.navigate(Screens.GROUP)

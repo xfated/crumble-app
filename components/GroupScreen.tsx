@@ -57,6 +57,7 @@ const GroupScreen = () => {
                 place={places.getGroupMatch()}
                 toggleModal={toggleModal}
                 isVisible={modalIsVisible}
+                userLoc={places.location}
             />
             <View style={{ zIndex: 20}}>
                 <Toast 
@@ -90,7 +91,8 @@ const GroupScreen = () => {
                     places={places.nearbyPlacesDetails}
                     curIdx={places.curPlaceIdx}
                     handleLike={handleLike}
-                    handleDislike={handleDislike} />
+                    handleDislike={handleDislike} 
+                    userLoc={places.location}/>
             </View>
         </SafeAreaView>
     )

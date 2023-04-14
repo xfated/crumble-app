@@ -3,11 +3,13 @@ import * as Location from 'expo-location';
 import { useState, useEffect } from 'react';
 import { PlaceDetailRow } from "../services/places/interfaces";
 import { placeService } from "../services/places/places";
+import { createActionAlert } from "../components/ui_components/ActionAlert";
+import * as Linking from 'expo-linking';
 
 type PlacesContextType = {
     nearbyPlacesDetails: PlaceDetailRow[];
     location: Location.LocationObject | null;
-    reqLocPerms: () => Promise<void>;
+    reqLocPerms: () => Promise<boolean>;
     fetchNearbyPlaces: (nextPageToken: string, radius: number, category: string) => Promise<boolean>;
     isLoading: boolean,
     errorMessage: string,
@@ -35,7 +37,7 @@ const delay = (ms: number) => new Promise(
 const PlaceContext = createContext<PlacesContextType>({
     nearbyPlacesDetails: [],
     location: null,
-    reqLocPerms: async () => {},
+    reqLocPerms: async () => {return false},
     fetchNearbyPlaces: async (nextPageToken: string, radius: number, category: string) => { return false },
     isLoading: false,
     errorMessage: "",
@@ -57,14 +59,21 @@ export const usePlace = () => useContext(PlaceContext);
 export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children }) => {
     // LOCATION UTILS
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
-    const reqLocPerms = async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
+    const reqLocPerms = async (): Promise<boolean> => {
+        let { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-            return;
+            if (!canAskAgain) {
+                createActionAlert("Error", 
+                    "Location required for this app. Please enable in settings",
+                    () => { Linking.openSettings() } 
+                )
+            }
+            return false;
         }
         let location = await Location.getCurrentPositionAsync({});
         setLocation(location);
         setErrorMessage("");
+        return true
     }
 
     useEffect(() => { // Try to get on start up
@@ -81,7 +90,15 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     }
     const fetchNearbyPlaces = async (next_page_token: string, radius: number, category: string): Promise<boolean> => {
         if (!location) {
-            await reqLocPerms();
+            setIsLoading(true);
+            const hasPerms = await reqLocPerms();
+            if (hasPerms) {
+                createActionAlert("Try again!", 
+                    "Just obtained location perms, please try again",
+                    () => {} 
+                )
+            }
+            setIsLoading(false);
             return false
         }
         const latitude = location?.coords.latitude ? location.coords.latitude : null;
@@ -121,9 +138,14 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     const createGroup = async (min_match: number, radius: number, category: string): Promise<boolean> => {
         if (!location) {
             setIsLoading(true);
-            await reqLocPerms();
+            const hasPerms = await reqLocPerms();
+            if (hasPerms) {
+                createActionAlert("Try again!", 
+                    "Just obtained location perms, please try again",
+                    () => {} 
+                )
+            }
             setIsLoading(false);
-            setErrorMessage("Unable to get location permissions, please try again")
             return false
         }
         const latitude = location?.coords.latitude ? location.coords.latitude : null;
@@ -176,13 +198,13 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
         if (groupId === null) {
             return false;
         }
-        setIsLoading(true);
+        // setIsLoading(true);
         const response = await placeService.groupGetNearbyPlaces(groupId, nextPageToken)
         if (response.success && response.data !== null) {
             const res = response.data
             const newResults = res.results.filter(result => !nearbyPlacesDetails.map(x => x.place_id)
                                                                 .includes(result.place_id))
-            updateNearbyPlacesDetails(res.results)
+            updateNearbyPlacesDetails(newResults)
             setNextPageToken(res.next_page_token ?? null)
             setErrorMessage("")
         } else {
@@ -191,7 +213,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
             setIsLoading(false);
             return false
         }
-        setIsLoading(false);
+        // setIsLoading(false);
         
         return true
     }
@@ -249,7 +271,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     const [curPlaceIdx, setCurPlaceIdx] = useState(0);
     const goNextPlace = async () => {
         setCurPlaceIdx(prev => prev + 1);
-        if (curPlaceIdx === nearbyPlacesDetails.length - 10 && nextPageToken !== null) { // fetch more
+        if (curPlaceIdx === nearbyPlacesDetails.length - 15 && nextPageToken !== null) { // fetch more
             if (groupId !== null) { // if is in group
                 await groupGetNearbyPlaces();
             } else {

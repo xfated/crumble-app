@@ -4,9 +4,12 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import { PlaceDetailRow } from "../../services/places/interfaces";
 import PlaceholderFoodImage from "./PlaceholderFoodImage";
+import { calcDist } from "../../services/dist_utils";
+import { LocationObject } from "expo-location";
 
 interface PlaceCardProps {
-    place: PlaceDetailRow
+    place: PlaceDetailRow,
+    userLoc: LocationObject | null
 }
 
 const screenWidth = Dimensions.get('window').width;
@@ -26,6 +29,21 @@ const PlaceCard: React.FC<PlaceCardProps> = (props) => {
         if (placeUrlValid) {
             await Linking.openURL(props.place.url)
         }
+    }
+
+    const getDistText = () => {
+        if (props.userLoc?.coords.longitude && props.userLoc?.coords.longitude) {
+            const dist = calcDist(
+                props.place.lat, 
+                props.place.long, 
+                props.userLoc.coords.latitude, 
+                props.userLoc.coords.longitude)
+            if (dist < 1) {
+                return `${(dist * 1000).toFixed(0)}m away`
+            }
+            return `${dist.toFixed(1)}km away`
+        }
+        return ""
     }
 
     return (
@@ -56,37 +74,43 @@ const PlaceCard: React.FC<PlaceCardProps> = (props) => {
                 <View style={styles.header}>
                     <View style={styles.title}>
                         <Text style={{
-                            fontSize: 16 / fontScale,
+                            fontSize: ((props.place.name.length > 80) ? 13 : 16) / fontScale,
                             fontWeight: "bold"
                         }}>{props.place.name}</Text>
                     </View>
                     <View style={styles.address}>
+                        <Text style={{ flex: 1, fontSize: 12 / fontScale, textAlign: "center"}}>{props.place.vicinity}</Text>
+                        <Pressable onPress={handlePlaceUrlPress}
+                            style={{
+                                padding: 5,
+                                margin: 5,
+                                borderColor: "#30757a",
+                                borderRadius: 5,
+                                borderWidth: 1,
+                                backgroundColor: "#f2da96",
+                                shadowColor: "#000",
+                                shadowOffset: {width: 0, height: 1},
+                                shadowOpacity: 0.8,
+                                shadowRadius: 2,
+                                elevation: 5,
+                                flexDirection: "row",
+                                alignItems: "center",
+                                columnGap: 5,
+                            }}>
+                        <Text style={{fontSize: 14 / fontScale, fontWeight: "600"}}>
+                            {`${getDistText()}`}
+                        </Text>
                         { placeUrlValid &&
-                            <Pressable onPress={handlePlaceUrlPress}
-                                style={{
-                                    padding: 5,
-                                    margin: 5,
-                                    borderColor: "#30757a",
-                                    borderRadius: 5,
-                                    borderWidth: 1,
-                                    backgroundColor: "#f2da96",
-                                    shadowColor: "#000",
-                                    shadowOffset: {width: 0, height: 1},
-                                    shadowOpacity: 0.8,
-                                    shadowRadius: 2,
-                                    elevation: 5,
-                                }}>
-                                <MaterialCommunityIcons name="map" size={30} color="#900" />
-                            </Pressable>
+                            <MaterialCommunityIcons name="map-search" size={25} color="#900" />
                         }
-                        <Text style={{ flex: 1 }}>{props.place.vicinity}</Text>
+                        </Pressable>
                     </View>
                 </View>
                 <View style={styles.info}>
                     <View style={{ flexDirection: "row" }}>
                         { props.place.price_level &&
-                            <Text>Price:{` `}
-                                <Text style={{ fontWeight: "bold" }}>{"$".repeat(props.place.price_level)}</Text>
+                            <Text style={{fontSize: 12 / fontScale}}>Price:{` `}
+                                <Text style={{fontSize: 16/ fontScale, fontWeight: "bold" }}>{"$".repeat(props.place.price_level)}</Text>
                             </Text>
                         }
                     </View>
@@ -174,7 +198,9 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
     },
     descriptionContainer: {
         height: "60%",
-        width: "100%"
+        width: "100%",
+        justifyContent: "center",
+        alignItems: "center"
     },
     header: {
         height: "25%",
@@ -182,7 +208,9 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
         alignItems: "center"
     },  
     title: {
-        alignItems: "center"
+        alignItems: "center",
+        paddingRight: 10, 
+        paddingLeft: 10
     },
     address: {
         flexDirection: "row",
@@ -194,6 +222,7 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
     info: {
         flexDirection: "row",
         justifyContent: "space-between",
+        alignItems: "flex-end",
         paddingBottom: 10,
         width: screenWidth * 0.95
     },

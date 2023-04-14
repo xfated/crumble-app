@@ -2,6 +2,7 @@ import { View, StyleSheet, Text, TouchableOpacity, useWindowDimensions } from "r
 import { PlaceDetailRow } from "../../services/places/interfaces";
 import { themeStyle } from "../styles";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { LocationObject } from 'expo-location';
 
 import PlaceCard from "./PlaceCard";
 
@@ -10,6 +11,7 @@ interface PlacesRenderProps {
     curIdx: number;
     handleLike: () => void;
     handleDislike: () => void;
+    userLoc: LocationObject | null;
 }
 
 const PlacesRender = (props: PlacesRenderProps) => {
@@ -29,7 +31,8 @@ const PlacesRender = (props: PlacesRenderProps) => {
                 <View style={themeStyle.fitContainer}>
                     <View style={styles.placeContainer}>
                         <PlaceCard
-                            place={props.places[props.curIdx]}/>
+                            place={props.places[props.curIdx]}
+                            userLoc={props.userLoc}/>
                     </View>
                     <View style={styles.inputContainer}>
                         <View>
@@ -71,16 +74,16 @@ const styles = StyleSheet.create({
         backgroundColor: "#23611f",
         justifyContent: "center",
         alignItems: "center",
-        width: 100,
+        width: 80,
         aspectRatio: 1,
-        borderRadius: 40,
+        borderRadius: 30,
     },
     dislikeButton: {
         backgroundColor: "#750e17",
         justifyContent: "center",
         alignItems: "center",
-        width: 100,
+        width: 80,
         aspectRatio: 1,
-        borderRadius: 40,
+        borderRadius: 30,
     }
 })

@@ -3,13 +3,14 @@ import { View, StyleSheet, Text, Modal, Pressable } from "react-native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { PlaceDetailRow } from "../../services/places/interfaces";
 import { themeStyle } from "../styles";
-
+import { LocationObject } from 'expo-location';
 import PlaceCard from "./PlaceCard";
 
 interface PlacesMatchModalProps {
     place: PlaceDetailRow | null;
     isVisible: boolean;
     toggleModal: () => void;
+    userLoc: LocationObject | null;
 }
 
 const PlacesMatchModal = (props: PlacesMatchModalProps) => {
@@ -27,7 +28,8 @@ const PlacesMatchModal = (props: PlacesMatchModalProps) => {
                     </Pressable>
                     { props.place ? 
                         <PlaceCard
-                            place={props.place}/>
+                            place={props.place}
+                            userLoc={props.userLoc}/>
                         :
                         <Text>No Match Yet</Text>
                     }

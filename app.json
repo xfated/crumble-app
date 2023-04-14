@@ -37,11 +37,6 @@
           "isAndroidBackgroundLocationEnabled": "Allow $(PRODUCT_NAME) to use your location."
         }
       ]
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "c8864973-8040-448b-bf15-bce52a491609"
-      }
-    }
+    ]
   }
 }
