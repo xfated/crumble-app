@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "crumble-app",
+    "name": "Crumble",
+    "description": "Helping you explore places around",
     "slug": "crumble-app",
     "version": "1.0.0",
     "orientation": "portrait",

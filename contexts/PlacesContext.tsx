@@ -9,7 +9,7 @@ import * as Linking from 'expo-linking';
 type PlacesContextType = {
     nearbyPlacesDetails: PlaceDetailRow[];
     location: Location.LocationObject | null;
-    reqLocPerms: () => Promise<boolean>;
+    reqLocPerms: () => Promise<Location.LocationObject | null>;
     fetchNearbyPlaces: (nextPageToken: string, radius: number, category: string) => Promise<boolean>;
     isLoading: boolean,
     errorMessage: string,
@@ -37,7 +37,7 @@ const delay = (ms: number) => new Promise(
 const PlaceContext = createContext<PlacesContextType>({
     nearbyPlacesDetails: [],
     location: null,
-    reqLocPerms: async () => {return false},
+    reqLocPerms: async () => {return null},
     fetchNearbyPlaces: async (nextPageToken: string, radius: number, category: string) => { return false },
     isLoading: false,
     errorMessage: "",
@@ -59,7 +59,7 @@ export const usePlace = () => useContext(PlaceContext);
 export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children }) => {
     // LOCATION UTILS
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
-    const reqLocPerms = async (): Promise<boolean> => {
+    const reqLocPerms = async (): Promise<Location.LocationObject | null> => {
         let { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
             if (!canAskAgain) {
@@ -68,12 +68,12 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
                     () => { Linking.openSettings() } 
                 )
             }
-            return false;
+            return null;
         }
         let location = await Location.getCurrentPositionAsync({});
         setLocation(location);
         setErrorMessage("");
-        return true
+        return location
     }
 
     useEffect(() => { // Try to get on start up
@@ -89,20 +89,18 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
         setNearbyPlacesDetails(prev => [...prev, ...places])
     }
     const fetchNearbyPlaces = async (next_page_token: string, radius: number, category: string): Promise<boolean> => {
+        let locRes = null
         if (!location) {
             setIsLoading(true);
-            const hasPerms = await reqLocPerms();
-            if (hasPerms) {
-                createActionAlert("Try again!", 
-                    "Just obtained location perms, please try again",
-                    () => {} 
-                )
-            }
+            locRes = await reqLocPerms();
             setIsLoading(false);
+        }
+        let locationObj = locRes ?? location
+        if (locationObj === null) {
             return false
         }
-        const latitude = location?.coords.latitude ? location.coords.latitude : null;
-        const longitude = location?.coords.longitude ? location.coords.longitude : null;
+        const latitude = locationObj?.coords.latitude ? locationObj.coords.latitude : null;
+        const longitude = locationObj?.coords.longitude ? locationObj.coords.longitude : null;
         if (latitude && longitude) {
             setIsLoading(true);
             const response = await placeService.getNearbyPlaces(category, latitude, longitude, radius, next_page_token)
@@ -136,20 +134,18 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
         return filteredPlaces[0]
     }
     const createGroup = async (min_match: number, radius: number, category: string): Promise<boolean> => {
+        let locRes = null
         if (!location) {
             setIsLoading(true);
-            const hasPerms = await reqLocPerms();
-            if (hasPerms) {
-                createActionAlert("Try again!", 
-                    "Just obtained location perms, please try again",
-                    () => {} 
-                )
-            }
+            locRes = await reqLocPerms();
             setIsLoading(false);
+        }
+        let locationObj = locRes ?? location
+        if (locationObj === null) {
             return false
         }
-        const latitude = location?.coords.latitude ? location.coords.latitude : null;
-        const longitude = location?.coords.longitude ? location.coords.longitude : null;
+        const latitude = locationObj?.coords.latitude ? locationObj.coords.latitude : null;
+        const longitude = locationObj?.coords.longitude ? locationObj.coords.longitude : null;
         if (latitude && longitude) {
             setIsLoading(true);
             const response = await placeService.createGroup(category, min_match, latitude, longitude, radius)        
