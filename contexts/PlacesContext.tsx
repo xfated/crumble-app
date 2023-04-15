@@ -169,6 +169,8 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     const joinGroup = async (group_id: string): Promise<boolean> => {
         setIsLoading(true);
         setSpinnerContent("Looking for group ...")
+        // Get cur location data for rendering distance
+        await reqLocPerms();
         const response = await placeService.joinGroup(group_id)
         if (response.success && response.data !== null) {
             const res = response.data

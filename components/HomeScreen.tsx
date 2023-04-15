@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
-import { StyleSheet, View, Text, TextInput, Image, Dimensions, useWindowDimensions } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View, Text, TextInput, Image, Dimensions, useWindowDimensions, FlatList, TouchableOpacity, SafeAreaView } from "react-native";
 import { NavigationProp } from "@react-navigation/native"
-import SelectDropdown from "react-native-select-dropdown";
 
 import { Screens } from './constants';
 import CustomButton from "./ui_components/CustomButton";
@@ -11,27 +10,31 @@ import { createErrorAlert } from "./ui_components/ErrorAlert";
 import Spinner from "react-native-loading-spinner-overlay";
 import { placeService } from "../services/places/places";
 import InvalidVersionModal from "./ui_components/InvalidVersionModal";
+import CreateGroupModal from "./Groups/CreateGroupModal";
+import { CategoryInfo, categories } from "./Categories/Categories";
+import { RenderCategory } from "./Categories/RenderCategory";
 
 export interface HomeScreenProps {
     navigation: NavigationProp<any,any>
 }
 
-const RADIUS_OPTIONS = [100, 200, 300, 400, 500, 700, 1000, 2000, 3000, 5000]
-const DEFAULT_RADIUS = 400
-const CATEGORY_OPTIONS = ["food", "takeaway", "bars", "attractions"]
-const CATEGORY_MAP: {[val:string]: string} = {
-    "food": "restaurant",
-    "takeaway": "meal_takeaway",
-    "bars": "bar",
-    "attractions": "tourist_attraction"
-}
-const DEFAULT_CATEGORY = "food"
 const screenWidth = Dimensions.get('window').width;
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     const place = usePlace();
     const {fontScale} = useWindowDimensions()
     const styles = makeStyles(fontScale)
+
+    const [isCreatingGroup, setIsCreatingGroup] = useState(false)
+    const toggleIsCreatingGroup = () => {
+        setIsCreatingGroup(prev => !prev)
+    }
+    const [categoryInfo, setCategoryInfo] = useState<CategoryInfo>(categories.Food)
+    const handleCategorySelect = (categoryInfo: CategoryInfo) => {
+        setCategoryInfo(categoryInfo)
+        toggleIsCreatingGroup()
+    }
+    
 
     // const handleSolo = async () => {
     //     place.resetPlaces();
@@ -51,22 +54,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             }
         })();
     }, [])
-
-    // Start Group
-    const [minToMatch, setMinToMatch] = useState("")
-    const [radius, setRadius] = useState(DEFAULT_RADIUS)
-    const [category, setCategory] = useState(DEFAULT_CATEGORY)
-    const handleStartGroup = async () => {
-        if (minToMatch.length === 0) {
-            createErrorAlert("Please specify number of people")
-            return
-        }
-        place.resetPlaces()
-        const success = await place.createGroup(parseInt(minToMatch), radius, CATEGORY_MAP[category])
-        if (success) {
-            navigation.navigate(Screens.GROUP)
-        }
-    }
 
     useEffect(() => {
         if (place.errorMessage !== "") {
@@ -93,14 +80,19 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
     
     return (
-        <View style={themeStyle.screenContainer}>
+        <SafeAreaView style={themeStyle.screenContainer}>
             <Spinner
                 visible={place.isLoading}
                 textContent={place.spinnerContent}
                 overlayColor="rgba(25,25,25,0.5)"
-                textStyle={styles.spinnerTextStyle}
+                textStyle={themeStyle.spinnerTextStyle}
             />
             <InvalidVersionModal isVisible={!versionIsValid} />
+            <CreateGroupModal 
+                modalIsVisible={isCreatingGroup}
+                categoryInfo={categoryInfo}
+                navigation={navigation}
+            />
             <View>
                 <View style={styles.inputContainer}>
                     {/* <View style={styles.soloContainer}>
@@ -108,40 +100,29 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                             onPress={handleSolo} />
                     </View> */}
                     <View style={styles.startGroupContainer}>
+                        <View style={styles.sectionHeaderWrapper}>
+                            <Text style={styles.sectionHeader}>Create a group</Text>
+                        </View>
+                        <View style={styles.sectionDescWrapper}>
+                            <Text style={styles.sectionDesc}>What are you looking for near you ?</Text>
+                        </View>
                         <View style={styles.inputBox}>
                             <View style={styles.inputWrapper}>
-                                <TextInput 
-                                    style={themeStyle.textInput} 
-                                    placeholder="Number of People" 
-                                    placeholderTextColor={"grey"}
-                                    onChangeText={(text) => {
-                                        setMinToMatch(text.replace(/[^0-9]/g, ''));
-                                    }}
-                                    value={minToMatch} 
+                                <View style={{height: "80%"}}> 
+                                    <FlatList data={Object.values(categories)}
+                                        horizontal
+                                        keyExtractor={(item: CategoryInfo, index: number) => item.displayName}
+                                        alwaysBounceHorizontal={false}
+                                        renderItem={({item}) => {
+                                            return (
+                                                <TouchableOpacity onPress={() => handleCategorySelect(item)}>
+                                                    <RenderCategory categoryInfo={item}/>
+                                                </TouchableOpacity>
+                                            )
+                                        }}
                                     />
-                            </View>
-                            <View style={styles.inputWrapper}>
-                                <View style={themeStyle.dropdownContainer}>
-                                    <View style={{width: "50%"}}>
-                                        <Text style={themeStyle.dropdownLabel}>Distance (m)</Text>
-                                    </View>
-                                    <View style={{width: "50%"}}>
-                                        <SelectDropdown data={RADIUS_OPTIONS}
-                                            onSelect={(selectedItem, idx) => {
-                                                setRadius(selectedItem)
-                                            }}
-                                            defaultButtonText={DEFAULT_RADIUS.toString()}
-                                            buttonStyle={themeStyle.dropDownButton}
-                                            buttonTextStyle={themeStyle.dropDownButtonText}
-                                            rowStyle={themeStyle.dropDownOption}
-                                            rowTextStyle={themeStyle.dropDownOptionText}
-                                            selectedRowStyle={themeStyle.dropDownOption}
-                                            />
-                                    </View>
                                 </View>
-                            </View>
-                            <View style={styles.inputWrapper}>
-                                <View style={themeStyle.dropdownContainer}>
+                                {/* <View style={themeStyle.dropdownContainer}>
                                     <View style={{width: "40%"}}>
                                         <Text style={themeStyle.dropdownLabel}>Category</Text>
                                     </View>
@@ -158,17 +139,19 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                             selectedRowStyle={themeStyle.dropDownOption}
                                             />
                                     </View>
-                                </View>
+                                </View> */}
                             </View>
-                        </View>
-                        <View style={styles.buttonBox}>
-                            <CustomButton title="Start a group" // TBD
-                                onPress={handleStartGroup}/>
                         </View>
                     </View>
                     <View style={styles.joinGroupContainer}>
+                        <View style={styles.sectionHeaderWrapper}>
+                            <Text style={styles.sectionHeader}>Join a group</Text>
+                        </View>
+                        <View style={styles.sectionDescWrapper}>
+                            <Text style={styles.sectionDesc}>Get the ID from your friend</Text>
+                        </View>
                         <View style={styles.inputBox}>
-                            <View style={{width: "100%", height: "60%"}}>
+                            <View style={{width: "50%", height: "75%"}}>
                                 <TextInput 
                                     style={themeStyle.textInput} 
                                     placeholder="Group ID" 
@@ -179,48 +162,57 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                     value={joinGroupId} 
                                     />
                             </View>
-                        </View>
-                        <View style={styles.buttonBox}>
-                            <CustomButton title="Join a group" // TBD
-                                onPress={handleJoinGroup}/>
+                            <View style={{width: "40%", height: "70%"}}>
+                                <CustomButton title="Join"
+                                    onPress={handleJoinGroup}/>
+                            </View>
                         </View>
                     </View>
                 </View>
                 <View style={styles.infoContainer}>
-                    <Image
-                        style={styles.tutorialImage}
-                        source={require('../assets/images/tutorial.png')}
-                        resizeMode={"contain"}
-                        />
-                    {/* <View style={{backgroundColor: "rgba(255,0,0,0.2)"}}>
-                        <Tutorial width={screenWidth} height={screenWidth}/>
-                    </View> */}
+                    <View style={styles.infoWrapper}>
+                        <View style={styles.sectionHeaderWrapper}>
+                            <Text style={styles.tutorialHeader}>How it works</Text>
+                        </View>
+                        <Image
+                            style={styles.tutorialImage}
+                            source={require('../assets/images/tutorial.png')}
+                            resizeMode={"contain"}
+                            />
+                        {/* <View style={{backgroundColor: "rgba(255,0,0,0.2)"}}>
+                            <Tutorial width={screenWidth} height={screenWidth}/>
+                        </View> */}
+                    </View>
                 </View>
             </View>
-        </View>
+        </SafeAreaView>
     )
 }
 
 export default HomeScreen;
 
 const makeStyles = (fontScale: number) => StyleSheet.create({
-    spinnerTextStyle: {
-        color: 'white',
-        borderRadius: 10,
-        textAlign: "center",
-        padding: 5,
-    },
     inputContainer: {
-        height: "40%",
+        height: "50%",
         justifyContent: "center",
         alignItems: "center"
     },
     infoContainer: {
         width: screenWidth,
-        height: "60%",
+        height: "50%",
+        paddingTop: 10,
         justifyContent: "center",
         alignItems: "center",
     }, 
+    infoWrapper: {
+        borderColor: "#4f2f23",
+        borderWidth: 2,
+        borderRadius: 20,
+        padding: 10,
+        paddingLeft: 20,
+        paddingRight: 20,
+        marginBottom: 20,
+    },
     // soloContainer: {
     //     flex: 1,
     //     width: "90%",
@@ -229,29 +221,48 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
     //     borderBottomColor: "grey",
     //     borderBottomWidth: 2
     // },
+    sectionHeaderWrapper: {
+        width: "100%",
+        justifyContent: "flex-start",
+        alignContent: "center"
+    },
+    sectionHeader: {
+        fontSize: 20 / fontScale,
+        padding: 10,
+        fontWeight: "800",
+        alignSelf: "flex-start"
+    },
+    sectionDescWrapper: {
+        paddingTop: 5,
+        paddingBottom: 0
+    },
+    sectionDesc: {
+        fontSize: 16 / fontScale,
+    },
     startGroupContainer: {
-        flex: 2,
+        flex: 3,
         width: "90%",
-        flexDirection: "row",
+        flexDirection: "column",
         justifyContent: "space-evenly",
         alignItems: "center",
         borderBottomColor: "grey",
         borderBottomWidth: 2,
     },
     joinGroupContainer: {
-        flex: 1,
+        flex: 2,
         width: "90%",
-        flexDirection: "row",
+        flexDirection: "column",
         justifyContent: "space-evenly",
         alignItems: "center",
     },
     inputBox: {
-        width: "60%",
-        height: "100%",
+        width: "100%",
+        flex: 1,
         paddingTop: "2%",
         paddingBottom: "2%",
+        flexDirection: "row",
         justifyContent: "space-evenly",
-        alignItems: "center"
+        alignItems: "center",
     },
     inputWrapper: {
         flex: 1, 
@@ -259,14 +270,19 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
         paddingTop: 5,
         paddingBottom: 5,
     },
-    buttonBox: {
-        width: "40%"
+    tutorialHeader: {
+        padding: 10,
+        backgroundColor: "#4f2f23",
+        color: "white",
+        borderRadius: 10, 
+        alignSelf: "center", 
+        fontSize: 16 / fontScale,
+        fontWeight: "900"
     },
     tutorialImage: {
-        height: "90%",
+        flex: 1,
         maxHeight: screenWidth * 0.9,
         aspectRatio: 1,
-        margin: 5,
-        borderRadius: 5,
+        padding: 5,
     }
 })

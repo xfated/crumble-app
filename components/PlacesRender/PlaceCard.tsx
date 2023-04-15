@@ -18,17 +18,8 @@ const PlaceCard: React.FC<PlaceCardProps> = (props) => {
     const {fontScale} = useWindowDimensions()
     const styles = makeStyles(fontScale)
 
-    const [placeUrlValid, setPlaceUrlValid] = useState(false)
-    useEffect(() => {
-        (async () => {
-            const isValid = await Linking.canOpenURL(props.place.url)
-            setPlaceUrlValid(isValid)
-        })();
-    }, [props.place.url])
     const handlePlaceUrlPress = async () => {
-        if (placeUrlValid) {
-            await Linking.openURL(props.place.url)
-        }
+        await Linking.openURL(props.place.url)
     }
 
     const getDistText = () => {
@@ -53,7 +44,7 @@ const PlaceCard: React.FC<PlaceCardProps> = (props) => {
                     <FlatList data={props.place.photos}
                         horizontal
                         keyExtractor={(item, index) => index.toString()}
-                        alwaysBounceVertical={false}
+                        alwaysBounceHorizontal={false}
                         renderItem={({item}) => {
                             return (
                                 <View style={styles.imageItemWrapper}>
@@ -97,12 +88,10 @@ const PlaceCard: React.FC<PlaceCardProps> = (props) => {
                                 alignItems: "center",
                                 columnGap: 5,
                             }}>
-                        <Text style={{fontSize: 14 / fontScale, fontWeight: "600"}}>
-                            {`${getDistText()}`}
-                        </Text>
-                        { placeUrlValid &&
+                            <Text style={{fontSize: 14 / fontScale, fontWeight: "600"}}>
+                                {`${getDistText()}`}
+                            </Text>
                             <MaterialCommunityIcons name="map-search" size={25} color="#900" />
-                        }
                         </Pressable>
                     </View>
                 </View>

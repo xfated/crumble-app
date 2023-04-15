@@ -8,23 +8,27 @@ export const themeStyle = StyleSheet.create({
         height: "100%",
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 40,
     },
     fitContainer: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center"
     },
+    spinnerTextStyle: {
+        color: 'white',
+        borderRadius: 10,
+        textAlign: "center",
+        padding: 5,
+    },
     // Button
     button: {
         backgroundColor: "#f2da96",
-        padding: 12,
         borderRadius: 5,
-        margin: 9,
+        height: "100%",
         justifyContent: "center",
         alignItems: "center",
         borderColor: "grey",
-        borderWidth: 1
+        borderWidth: 1,
     },
     buttonText: {
         fontSize: 16 / fontScale,
@@ -40,7 +44,7 @@ export const themeStyle = StyleSheet.create({
         paddingLeft: 10,
         paddingRight: 10,
         color: "black",
-        fontSize: 14 / fontScale
+        fontSize: 16 / fontScale
     },
     // Dropdown
     dropdownContainer: {
@@ -51,8 +55,9 @@ export const themeStyle = StyleSheet.create({
     },
     dropdownLabel: {
         width: "100%",
-        fontSize: 14 / fontScale,
-        fontWeight: "500"
+        fontSize: 16 / fontScale,
+        fontWeight: "500",
+        margin: 10,
     },
     dropDownButton: {
         width: "100%",
