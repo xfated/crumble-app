@@ -7,7 +7,6 @@ import { NavigationProp } from '@react-navigation/native';
 import { Screens } from './constants';
 import SelectDropdown from 'react-native-select-dropdown';
 import CustomButton from './ui_components/CustomButton';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { RenderCategory } from './Categories/RenderCategory';
 import Spinner from 'react-native-loading-spinner-overlay/lib';
 

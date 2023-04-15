@@ -19,6 +19,7 @@ export const themeStyle = StyleSheet.create({
         borderRadius: 10,
         textAlign: "center",
         padding: 5,
+        fontSize: 16 / fontScale
     },
     // Input Text
     textInput: {
@@ -44,7 +45,7 @@ export const themeStyle = StyleSheet.create({
         width: "100%",
         fontSize: 16 / fontScale,
         fontWeight: "500",
-        margin: 10,
+        padding: 5,
     },
     dropDownButton: {
         width: "100%",
