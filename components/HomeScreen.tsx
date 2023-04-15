@@ -94,7 +94,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                         </View>
                         <View style={styles.inputBox}>
                             <View style={styles.inputWrapper}>
-                                <View style={{height: "80%"}}> 
+                                <View style={{height: "90%"}}> 
                                     <FlatList data={Object.values(categories)}
                                         horizontal
                                         keyExtractor={(item: CategoryInfo, index: number) => item.displayName}
@@ -194,10 +194,10 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
         borderColor: "#4f2f23",
         borderWidth: 2,
         borderRadius: 20,
-        padding: 10,
+        padding: 5,
         paddingLeft: 20,
         paddingRight: 20,
-        marginBottom: 20,
+        marginBottom: 10,
     },
     // soloContainer: {
     //     flex: 1,
@@ -257,13 +257,11 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
         paddingBottom: 5,
     },
     tutorialHeader: {
-        padding: 10,
-        backgroundColor: "#4f2f23",
-        color: "white",
-        borderRadius: 10, 
+        padding: 5,
+        color: "#4f2f23",
         alignSelf: "center", 
         fontSize: 16 / fontScale,
-        fontWeight: "900"
+        fontWeight: "900",
     },
     tutorialImage: {
         flex: 1,

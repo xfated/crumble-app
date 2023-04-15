@@ -20,19 +20,6 @@ export const themeStyle = StyleSheet.create({
         textAlign: "center",
         padding: 5,
     },
-    // Button
-    button: {
-        backgroundColor: "#f2da96",
-        borderRadius: 5,
-        height: "100%",
-        justifyContent: "center",
-        alignItems: "center",
-        borderColor: "grey",
-        borderWidth: 1,
-    },
-    buttonText: {
-        fontSize: 16 / fontScale,
-    },
     // Input Text
     textInput: {
         width: "100%",

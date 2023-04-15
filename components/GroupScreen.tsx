@@ -1,12 +1,12 @@
 import { useEffect, useState, memo } from 'react';
 import { usePlace } from "../contexts/PlacesContext";
-import { View, Text, StyleSheet, Pressable, TouchableOpacity, SafeAreaView, useWindowDimensions } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, useWindowDimensions } from "react-native";
 import * as Clipboard from 'expo-clipboard';
 import PlacesRender from "./PlacesRender/PlacesRender";
 import { themeStyle } from "./styles";
-import PlacesMatchModal from './PlacesRender/PlacesMatchModal';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Toast from 'react-native-toast-message';
+import PlacesMatchDisplay from './PlacesRender/PlacesMatchDisplay';
 
 const GroupScreen = () => {
     const places = usePlace()
@@ -53,12 +53,6 @@ const GroupScreen = () => {
     
     return (
         <SafeAreaView style={themeStyle.screenContainer}>
-            <PlacesMatchModal 
-                place={places.getGroupMatch()}
-                toggleModal={toggleModal}
-                isVisible={modalIsVisible}
-                userLoc={places.location}
-            />
             <View style={{ zIndex: 20}}>
                 <Toast 
                     type="info"
@@ -76,7 +70,7 @@ const GroupScreen = () => {
                         <MaterialCommunityIcons name="content-copy" size={20} color="black" />
                     </Text>
                 </TouchableOpacity>
-                { places.groupMatch ? 
+                {/* { places.groupMatch ? 
                     <Pressable style={{backgroundColor: "#092729", borderRadius: 4, padding: 7}}
                         onPress={toggleModal}>
                         <Text style={{color: "#fff"}}>
@@ -84,15 +78,22 @@ const GroupScreen = () => {
                         </Text>
                     </Pressable>
                     : <Text></Text>
-                }
+                } */}
             </View>
             <View style={styles.placesContainer}>
-                <PlacesRender
-                    places={places.nearbyPlacesDetails}
-                    curIdx={places.curPlaceIdx}
-                    handleLike={handleLike}
-                    handleDislike={handleDislike} 
-                    userLoc={places.location}/>
+                { places.groupMatch ?
+                    <PlacesMatchDisplay
+                        place={places.getGroupMatch()}
+                        userLoc={places.location}
+                    />
+                    :
+                    <PlacesRender
+                        places={places.nearbyPlacesDetails}
+                        curIdx={places.curPlaceIdx}
+                        handleLike={handleLike}
+                        handleDislike={handleDislike} 
+                        userLoc={places.location}/>
+                }
             </View>
         </SafeAreaView>
     )

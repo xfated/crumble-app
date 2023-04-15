@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { memo } from "react";
 import { View, Text, StyleSheet, FlatList, Linking, Pressable, Image, Dimensions, useWindowDimensions } from "react-native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -98,27 +98,28 @@ const PlaceCard: React.FC<PlaceCardProps> = (props) => {
                 <View style={styles.info}>
                     <View style={{ flexDirection: "row" }}>
                         { props.place.price_level &&
-                            <Text style={{fontSize: 12 / fontScale}}>Price:{` `}
-                                <Text style={{fontSize: 16/ fontScale, fontWeight: "bold" }}>{"$".repeat(props.place.price_level)}</Text>
+                            <Text style={{fontSize: 14 / fontScale}}>Price:{` `}
+                                <Text style={{fontSize: 18 / fontScale, fontWeight: "bold" }}>{"$".repeat(props.place.price_level)}</Text>
                             </Text>
                         }
                     </View>
                     <View>
                         { (props.place.rating && props.place.user_ratings_total) &&
-                            <Text style={{fontSize: 12 / fontScale}}>Rated{` `}
+                            <Text style={{fontSize: 14 / fontScale}}>Rated{` `}
                                 <Text style={{fontSize: 24 / fontScale, fontWeight: "600", color: `${props.place.rating > 3 ? "#23611f" : "#ab5b00"}`}}>
-                                    {props.place.rating}
+                                    {props.place.rating}/5
                                 </Text>
                                 {` `}by{` `}
-                                <Text style={{fontSize: 16 / fontScale}}>{props.place.user_ratings_total}</Text>
+                                <Text style={{fontSize: 18 / fontScale}}>{props.place.user_ratings_total}</Text>
                             </Text>
                         }
                     </View>
                 </View>
                 <View style={styles.reviews}>
-                    <View style={{width: "90%", justifyContent: "flex-start"}}>
+                    <View style={{width: "90%", alignSelf: "flex-start", paddingLeft: "2%"}}>
                         <Text style={{
                             color: "#423e3c",
+                            fontSize: 16 / fontScale
                         }}>{props.place.reviews.length > 0 ? "Recent reviews:" : "No reviews found"}</Text>
                     </View>
                     <FlatList data={props.place.reviews}
@@ -127,7 +128,44 @@ const PlaceCard: React.FC<PlaceCardProps> = (props) => {
                         renderItem={({item}) => {
                             return (
                                 <View style={styles.reviewContainer}>
-                                    <View style={styles.reviewInfoContainer}>
+                                    <View style={{
+                                        width: "10%",
+                                        justifyContent: "center",
+                                        alignItems: "center"
+                                    }}>
+                                        <Text
+                                            style={{
+                                                fontSize: 30 / fontScale,
+                                                color: item.rating > 3 ? "#23611f" : "#ab5b00",
+                                                fontWeight: "700"
+                                            }}>
+                                            {item.rating}
+                                        </Text>
+                                    </View>
+                                    <View style={{
+                                        width: "85%",
+                                        justifyContent: "flex-start",
+                                        alignItems: "center"
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 14 / fontScale
+                                        }}>
+                                            {item.text}
+                                        </Text>
+                                        <View style={{
+                                            width: "100%",
+                                            justifyContent: "flex-end",
+                                            alignItems: "flex-end"
+                                        }}>
+                                            <Text style={{
+                                                color: "#424241",
+                                                fontSize: 12 / fontScale,
+                                            }}>
+                                                {`Reviewed ${item.relative_time_description}`}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                    {/* <View style={styles.reviewInfoContainer}>
                                         <Text>Rating:{` `}
                                             <Text style={{fontWeight:"600", fontSize: 16 / fontScale}}>{item.rating}</Text>
                                         </Text>
@@ -137,7 +175,7 @@ const PlaceCard: React.FC<PlaceCardProps> = (props) => {
                                             fontStyle: "italic"
                                         }}>{item.relative_time_description}</Text>
                                     </View>
-                                    <Text style={styles.reviewText}>{item.text}</Text>
+                                    <Text style={styles.reviewText}>{item.text}</Text> */}
                                 </View>
                             )        
                         }}
@@ -219,17 +257,20 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
     // Reviews
     reviews: {
         flex: 1,
+        width: "100%",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
     },
     reviewContainer: {
         width: screenWidth * 0.95,
-        borderRadius: 10,
-        backgroundColor: "#f7ffc7",
+        borderRadius: 5,
+        backgroundColor: "#fcd5b3",
         paddingTop: 7,
         paddingBottom: 7,
         marginTop: 2,
         marginBottom: 2,
+        flexDirection: "row",
+        alignItems: "flex-start",
     },
     reviewInfoContainer: {
         flexDirection: "row",
