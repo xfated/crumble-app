@@ -34,7 +34,7 @@ const PlaceCard: React.FC<PlaceCardProps> = (props) => {
             }
             return `GetDirections (${dist.toFixed(1)}km away)`
         }
-        return ""
+        return "Get Directions"
     }
 
     return (
