@@ -30,9 +30,9 @@ const PlaceCard: React.FC<PlaceCardProps> = (props) => {
                 props.userLoc.coords.latitude, 
                 props.userLoc.coords.longitude)
             if (dist < 1) {
-                return `${(dist * 1000).toFixed(0)}m away`
+                return `Get Directions (${(dist * 1000).toFixed(0)}m away)`
             }
-            return `${dist.toFixed(1)}km away`
+            return `GetDirections (${dist.toFixed(1)}km away)`
         }
         return ""
     }
@@ -70,7 +70,7 @@ const PlaceCard: React.FC<PlaceCardProps> = (props) => {
                         }}>{props.place.name}</Text>
                     </View>
                     <View style={styles.address}>
-                        <Text style={{ flex: 1, fontSize: 12 / fontScale, textAlign: "center"}}>{props.place.vicinity}</Text>
+                        {/* <Text style={{ flex: 1, fontSize: 12 / fontScale, textAlign: "center"}}>{props.place.vicinity}</Text> */}
                         <Pressable onPress={handlePlaceUrlPress}
                             style={{
                                 padding: 5,

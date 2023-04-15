@@ -23,12 +23,12 @@ const PlacesMatchDisplay = (props: PlacesMatchDisplayProps) => {
         <View style={styles.displayWrapper}>
             <View style={styles.headerWrapper}>
                 <Text style={{fontSize: 24 / fontScale, fontWeight: "600", color:"#b08205"}}>You found a match!</Text>
-                <View style={styles.buttonContainer}>
+                {/* <View style={styles.buttonContainer}>
                     <TouchableOpacity style={styles.getDirectionsButtonWrapper}onPress={() => handlePlaceUrlPress()}>
                         <Text style={styles.getDirectionsButton}>Get Directions</Text>
                         <MaterialCommunityIcons name="directions" size={30} color="black" />
                     </TouchableOpacity>
-                </View>
+                </View> */}
             </View>
             <View style={styles.cardWrapper}>
                 { props.place ? 
