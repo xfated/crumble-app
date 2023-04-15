@@ -81,7 +81,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
         if (queryType === QueryType.CREATE_GROUP && status !== 'granted') {
             if (!canAskAgain) {
                 createActionAlert("Error", 
-                    "Location required to find places near you to start a group.",
+                    "Turning on location settings allow us to find places near you which is required to start a group. Press 'OK' to go to settings. This can be changed later in the settings app.",
                     () => { Linking.openSettings() } 
                 )
             }

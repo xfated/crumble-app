@@ -35,7 +35,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location to find places near you."
+          "locationAlwaysAndWhenInUsePermission": "Turning on location settings allow us to help you find places near you. This can be changed later in the settings app."
         }
       ],
       [
