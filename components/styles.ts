@@ -1,4 +1,6 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
+
+const { width, fontScale } = Dimensions.get("window");
 
 export const themeStyle = StyleSheet.create({
     screenContainer: {
@@ -25,7 +27,7 @@ export const themeStyle = StyleSheet.create({
         borderWidth: 1
     },
     buttonText: {
-        fontSize: 16,
+        fontSize: 16 / fontScale,
     },
     // Input Text
     textInput: {
@@ -35,8 +37,10 @@ export const themeStyle = StyleSheet.create({
         backgroundColor: 'rgba(242, 237, 194, 0.5)',
         borderColor: '#d19f2a',
         borderWidth: 1,
-        padding: 14,
-        color: "black"
+        paddingLeft: 10,
+        paddingRight: 10,
+        color: "black",
+        fontSize: 14 / fontScale
     },
     // Dropdown
     dropdownContainer: {
@@ -47,7 +51,7 @@ export const themeStyle = StyleSheet.create({
     },
     dropdownLabel: {
         width: "100%",
-        fontSize: 14,
+        fontSize: 14 / fontScale,
         fontWeight: "500"
     },
     dropDownButton: {
@@ -60,13 +64,13 @@ export const themeStyle = StyleSheet.create({
         padding: 4
     },
     dropDownButtonText: {
-        fontSize: 14,
+        fontSize: 14 / fontScale,
     },
     dropDownOption: {
         backgroundColor: 'rgba(242, 237, 194, 0.5)',
     },
     dropDownOptionText: {
-        fontSize: 14,
+        fontSize: 14 / fontScale,
     },
 
     // Bold text

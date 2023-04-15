@@ -9,6 +9,7 @@ import * as Linking from 'expo-linking';
 type PlacesContextType = {
     nearbyPlacesDetails: PlaceDetailRow[];
     location: Location.LocationObject | null;
+    spinnerContent: string;
     reqLocPerms: () => Promise<Location.LocationObject | null>;
     fetchNearbyPlaces: (nextPageToken: string, radius: number, category: string) => Promise<boolean>;
     isLoading: boolean,
@@ -37,6 +38,7 @@ const delay = (ms: number) => new Promise(
 const PlaceContext = createContext<PlacesContextType>({
     nearbyPlacesDetails: [],
     location: null,
+    spinnerContent: "",
     reqLocPerms: async () => {return null},
     fetchNearbyPlaces: async (nextPageToken: string, radius: number, category: string) => { return false },
     isLoading: false,
@@ -70,10 +72,10 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
             }
             return null;
         }
-        let location = await Location.getCurrentPositionAsync({});
-        setLocation(location);
+        let locObj = await Location.getCurrentPositionAsync({});
+        setLocation(locObj);
         setErrorMessage("");
-        return location
+        return locObj
     }
 
     useEffect(() => { // Try to get on start up
@@ -82,6 +84,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
 
     // NEARBY PLACES UTILS
     const [isLoading, setIsLoading] = useState(false);
+    const [spinnerContent, setSpinnerContent] = useState("Loading...")
     const [errorMessage, setErrorMessage] = useState("");
     const [nearbyPlacesDetails, setNearbyPlacesDetails] = useState<PlaceDetailRow[]>([])
     const [nextPageToken, setNextPageToken] = useState<string | null>("");
@@ -90,11 +93,9 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     }
     const fetchNearbyPlaces = async (next_page_token: string, radius: number, category: string): Promise<boolean> => {
         let locRes = null
-        if (!location) {
-            setIsLoading(true);
-            locRes = await reqLocPerms();
-            setIsLoading(false);
-        }
+        setIsLoading(true);
+        locRes = await reqLocPerms();
+        setIsLoading(false);
         let locationObj = locRes ?? location
         if (locationObj === null) {
             return false
@@ -135,11 +136,10 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     }
     const createGroup = async (min_match: number, radius: number, category: string): Promise<boolean> => {
         let locRes = null
-        if (!location) {
-            setIsLoading(true);
-            locRes = await reqLocPerms();
-            setIsLoading(false);
-        }
+        setIsLoading(true);
+        setSpinnerContent("Getting your location")
+        locRes = await reqLocPerms();
+        setIsLoading(false);
         let locationObj = locRes ?? location
         if (locationObj === null) {
             return false
@@ -148,6 +148,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
         const longitude = locationObj?.coords.longitude ? locationObj.coords.longitude : null;
         if (latitude && longitude) {
             setIsLoading(true);
+            setSpinnerContent("Getting places and Creating group ...")
             const response = await placeService.createGroup(category, min_match, latitude, longitude, radius)        
             if (response.success && response.data !== null) {
                 const res = response.data    
@@ -167,7 +168,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     }
     const joinGroup = async (group_id: string): Promise<boolean> => {
         setIsLoading(true);
-            
+        setSpinnerContent("Looking for group ...")
         const response = await placeService.joinGroup(group_id)
         if (response.success && response.data !== null) {
             const res = response.data
@@ -290,6 +291,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
             value={{
                 nearbyPlacesDetails,
                 location,
+                spinnerContent,
                 reqLocPerms,
                 fetchNearbyPlaces,
                 isLoading,

@@ -52,7 +52,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         })();
     }, [])
 
-    const [spinnerContent, setSpinnerContent] = useState("Loading...")
     // Start Group
     const [minToMatch, setMinToMatch] = useState("")
     const [radius, setRadius] = useState(DEFAULT_RADIUS)
@@ -63,7 +62,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             return
         }
         place.resetPlaces()
-        setSpinnerContent("Getting places and Creating group ...")
         const success = await place.createGroup(parseInt(minToMatch), radius, CATEGORY_MAP[category])
         if (success) {
             navigation.navigate(Screens.GROUP)
@@ -88,7 +86,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             return
         }
         place.resetPlaces()
-        setSpinnerContent("Looking for group ...")
         const success = await place.joinGroup(joinGroupId)
         if (success) {
             navigation.navigate(Screens.GROUP)
@@ -99,7 +96,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         <View style={themeStyle.screenContainer}>
             <Spinner
                 visible={place.isLoading}
-                textContent={spinnerContent}
+                textContent={place.spinnerContent}
                 overlayColor="rgba(25,25,25,0.5)"
                 textStyle={styles.spinnerTextStyle}
             />
@@ -250,7 +247,9 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
     },
     inputBox: {
         width: "60%",
-        height: "80%",
+        height: "100%",
+        paddingTop: "2%",
+        paddingBottom: "2%",
         justifyContent: "space-evenly",
         alignItems: "center"
     },
