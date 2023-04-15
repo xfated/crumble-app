@@ -5,6 +5,7 @@ import { PlaceDetailRow } from "../services/places/interfaces";
 import { placeService } from "../services/places/places";
 import { createActionAlert } from "../components/ui_components/ActionAlert";
 import * as Linking from 'expo-linking';
+import { CategoryInfo, categories } from "../components/Categories/Categories";
 
 type PlacesContextType = {
     nearbyPlacesDetails: PlaceDetailRow[];
@@ -17,6 +18,10 @@ type PlacesContextType = {
     curPlaceIdx: number,
     resetPlaces: () => void,
     goNextPlace: () => Promise<void>,
+    // for create group
+    categoryInfo: CategoryInfo,
+    handleCategorySelect: (categoryInfo: CategoryInfo) => void,
+
     // for group
     groupId: string | null,
     groupMatch: string | null,
@@ -46,6 +51,10 @@ const PlaceContext = createContext<PlacesContextType>({
     curPlaceIdx: 0,
     resetPlaces: () => {},
     goNextPlace: async () => {},
+    // for create group
+    categoryInfo: categories.Food,
+    handleCategorySelect: (cateyInfo: CategoryInfo) => {},
+
     // for group
     groupId: null,
     groupMatch: null,
@@ -81,6 +90,12 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     useEffect(() => { // Try to get on start up
         reqLocPerms()
     }, []);
+
+    // SELECT CATEGORY  utils
+    const [categoryInfo, setCategoryInfo] = useState<CategoryInfo>(categories.Food)
+    const handleCategorySelect = (categoryInfo: CategoryInfo) => {
+        setCategoryInfo(categoryInfo)
+    }
 
     // NEARBY PLACES UTILS
     const [isLoading, setIsLoading] = useState(false);
@@ -221,7 +236,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
             setErrorMessage("No group id found")
             return false;
         }
-        setIsLoading(true);
+        // setIsLoading(true);
         const response = await placeService.groupAddLike(groupId, place_id)
         if (response.success && response.data !== null) {
             const res = response.data
@@ -237,7 +252,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
             setIsLoading(false);
             return false
         }
-        setIsLoading(false);
+        // setIsLoading(false);
         
         return true
     }
@@ -301,6 +316,9 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
                 curPlaceIdx,
                 resetPlaces,
                 goNextPlace,
+                // For create group
+                categoryInfo,
+                handleCategorySelect,
                 // For groups
                 groupId,
                 groupMatch,

@@ -10,7 +10,6 @@ import { createErrorAlert } from "./ui_components/ErrorAlert";
 import Spinner from "react-native-loading-spinner-overlay";
 import { placeService } from "../services/places/places";
 import InvalidVersionModal from "./ui_components/InvalidVersionModal";
-import CreateGroupModal from "./Groups/CreateGroupModal";
 import { CategoryInfo, categories } from "./Categories/Categories";
 import { RenderCategory } from "./Categories/RenderCategory";
 
@@ -25,17 +24,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     const {fontScale} = useWindowDimensions()
     const styles = makeStyles(fontScale)
 
-    const [isCreatingGroup, setIsCreatingGroup] = useState(false)
-    const toggleIsCreatingGroup = () => {
-        setIsCreatingGroup(prev => !prev)
-    }
-    const [categoryInfo, setCategoryInfo] = useState<CategoryInfo>(categories.Food)
-    const handleCategorySelect = (categoryInfo: CategoryInfo) => {
-        setCategoryInfo(categoryInfo)
-        toggleIsCreatingGroup()
-    }
-    
-
     // const handleSolo = async () => {
     //     place.resetPlaces();
     //     const success = await place.fetchNearbyPlaces("");
@@ -43,7 +31,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     //         navigation.navigate(Screens.INDIVIDUAL);
     //     }
     // }
-
+    const handleSelectCategory = (categoryInfo: CategoryInfo) => {
+        place.handleCategorySelect(categoryInfo)
+        navigation.navigate(Screens.CREATE_GROUP)
+    }
     // Check versioning
     const [versionIsValid, setVersionIsValid] = useState(true);
     useEffect(() => {
@@ -88,11 +79,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 textStyle={themeStyle.spinnerTextStyle}
             />
             <InvalidVersionModal isVisible={!versionIsValid} />
-            <CreateGroupModal 
-                modalIsVisible={isCreatingGroup}
-                categoryInfo={categoryInfo}
-                navigation={navigation}
-            />
             <View>
                 <View style={styles.inputContainer}>
                     {/* <View style={styles.soloContainer}>
@@ -115,7 +101,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                                         alwaysBounceHorizontal={false}
                                         renderItem={({item}) => {
                                             return (
-                                                <TouchableOpacity onPress={() => handleCategorySelect(item)}>
+                                                <TouchableOpacity onPress={() => handleSelectCategory(item)}>
                                                     <RenderCategory categoryInfo={item}/>
                                                 </TouchableOpacity>
                                             )

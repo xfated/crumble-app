@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { Screens } from './components/constants';
 import IndividualSearchScreen from './components/IndividualSearchScreen';
 import GroupScreen from './components/GroupScreen';
+import CreateGroupScreen from './components/CreateGroupScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +25,7 @@ export default function App() {
             <Stack.Screen name={Screens.HOME} component={HomeScreen}/>
             <Stack.Screen name={Screens.INDIVIDUAL} component={IndividualSearchScreen} />
             <Stack.Screen name={Screens.GROUP} component={GroupScreen} />
+            <Stack.Screen name={Screens.CREATE_GROUP} component={CreateGroupScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </PlaceContextProvider>
