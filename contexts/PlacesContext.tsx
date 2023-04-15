@@ -7,11 +7,17 @@ import { createActionAlert } from "../components/ui_components/ActionAlert";
 import * as Linking from 'expo-linking';
 import { CategoryInfo, categories } from "../components/Categories/Categories";
 
+enum QueryType {
+    INIT,
+    CREATE_GROUP,
+    JOIN_GROUP
+}
+
 type PlacesContextType = {
     nearbyPlacesDetails: PlaceDetailRow[];
     location: Location.LocationObject | null;
     spinnerContent: string;
-    reqLocPerms: () => Promise<Location.LocationObject | null>;
+    reqLocPerms: (queryType: QueryType) => Promise<Location.LocationObject | null>;
     fetchNearbyPlaces: (nextPageToken: string, radius: number, category: string) => Promise<boolean>;
     isLoading: boolean,
     errorMessage: string,
@@ -70,12 +76,12 @@ export const usePlace = () => useContext(PlaceContext);
 export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children }) => {
     // LOCATION UTILS
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
-    const reqLocPerms = async (): Promise<Location.LocationObject | null> => {
+    const reqLocPerms = async (queryType: QueryType): Promise<Location.LocationObject | null> => {
         let { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
+        if (queryType === QueryType.CREATE_GROUP && status !== 'granted') {
             if (!canAskAgain) {
                 createActionAlert("Error", 
-                    "Location required for this app. Please enable in settings",
+                    "Location required to find places near you to start a group.",
                     () => { Linking.openSettings() } 
                 )
             }
@@ -88,7 +94,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     }
 
     useEffect(() => { // Try to get on start up
-        reqLocPerms()
+        reqLocPerms(QueryType.INIT)
     }, []);
 
     // SELECT CATEGORY  utils
@@ -109,7 +115,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     const fetchNearbyPlaces = async (next_page_token: string, radius: number, category: string): Promise<boolean> => {
         let locRes = null
         setIsLoading(true);
-        locRes = await reqLocPerms();
+        locRes = await reqLocPerms(QueryType.CREATE_GROUP);
         setIsLoading(false);
         let locationObj = locRes ?? location
         if (locationObj === null) {
@@ -153,7 +159,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
         let locRes = null
         setIsLoading(true);
         setSpinnerContent("Getting your location")
-        locRes = await reqLocPerms();
+        locRes = await reqLocPerms(QueryType.CREATE_GROUP);
         setIsLoading(false);
         let locationObj = locRes ?? location
         if (locationObj === null) {
@@ -185,7 +191,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
         setIsLoading(true);
         setSpinnerContent("Looking for group ...")
         // Get cur location data for rendering distance
-        await reqLocPerms();
+        await reqLocPerms(QueryType.JOIN_GROUP);
         const response = await placeService.joinGroup(group_id)
         if (response.success && response.data !== null) {
             const res = response.data
