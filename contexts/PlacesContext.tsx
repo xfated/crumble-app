@@ -87,10 +87,12 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
             }
             return null;
         }
-        let locObj = await Location.getCurrentPositionAsync({});
-        setLocation(locObj);
-        setErrorMessage("");
-        return locObj
+        if (status === 'granted') {
+            let locObj = await Location.getCurrentPositionAsync({});
+            setLocation(locObj);
+            return locObj
+        }
+        return null
     }
 
     useEffect(() => { // Try to get on start up
