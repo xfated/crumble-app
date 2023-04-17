@@ -2,7 +2,11 @@
 
 # Building apk for android
 eas build -p android  --profile preview
-eas build -p ios 
 
-# Build and submit to testflight
+# Submit to ios
+eas build -p ios 
 eas submit -p ios
+
+# Submit to android
+eas build -p android
+eas submit -p android
