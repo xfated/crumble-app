@@ -1,0 +1,65 @@
+diff --git a/node_modules/expo-location/plugin/build/withLocation.js b/node_modules/expo-location/plugin/build/withLocation.js
+index 917f3b0..08d240a 100644
+--- a/node_modules/expo-location/plugin/build/withLocation.js
++++ b/node_modules/expo-location/plugin/build/withLocation.js
+@@ -17,16 +17,19 @@ const withBackgroundLocation = (config) => {
+ const withLocation = (config, { locationAlwaysAndWhenInUsePermission, locationAlwaysPermission, locationWhenInUsePermission, isIosBackgroundLocationEnabled, isAndroidBackgroundLocationEnabled, } = {}) => {
+     if (isIosBackgroundLocationEnabled) {
+         config = withBackgroundLocation(config);
++        config = (0, config_plugins_1.withInfoPlist)(config, (config) => {
++            config.modResults.NSLocationAlwaysAndWhenInUseUsageDescription =
++                locationAlwaysAndWhenInUsePermission ||
++                    config.modResults.NSLocationAlwaysAndWhenInUseUsageDescription ||
++                    LOCATION_USAGE;
++            config.modResults.NSLocationAlwaysUsageDescription =
++                locationAlwaysPermission ||
++                    config.modResults.NSLocationAlwaysUsageDescription ||
++                    LOCATION_USAGE;
++            return config;
++        });
+     }
+     config = (0, config_plugins_1.withInfoPlist)(config, (config) => {
+-        config.modResults.NSLocationAlwaysAndWhenInUseUsageDescription =
+-            locationAlwaysAndWhenInUsePermission ||
+-                config.modResults.NSLocationAlwaysAndWhenInUseUsageDescription ||
+-                LOCATION_USAGE;
+-        config.modResults.NSLocationAlwaysUsageDescription =
+-            locationAlwaysPermission ||
+-                config.modResults.NSLocationAlwaysUsageDescription ||
+-                LOCATION_USAGE;
+         config.modResults.NSLocationWhenInUseUsageDescription =
+             locationWhenInUsePermission ||
+                 config.modResults.NSLocationWhenInUseUsageDescription ||
+diff --git a/node_modules/expo-location/plugin/src/withLocation.ts b/node_modules/expo-location/plugin/src/withLocation.ts
+index e099d0d..9c5183d 100644
+--- a/node_modules/expo-location/plugin/src/withLocation.ts
++++ b/node_modules/expo-location/plugin/src/withLocation.ts
+@@ -40,17 +40,20 @@ const withLocation: ConfigPlugin<
+ ) => {
+   if (isIosBackgroundLocationEnabled) {
+     config = withBackgroundLocation(config);
++    config = withInfoPlist(config, (config) => {
++      config.modResults.NSLocationAlwaysAndWhenInUseUsageDescription =
++        locationAlwaysAndWhenInUsePermission ||
++        config.modResults.NSLocationAlwaysAndWhenInUseUsageDescription ||
++        LOCATION_USAGE;
++      config.modResults.NSLocationAlwaysUsageDescription =
++        locationAlwaysPermission ||
++        config.modResults.NSLocationAlwaysUsageDescription ||
++        LOCATION_USAGE;
++      
++        return config;
+   }
+ 
+   config = withInfoPlist(config, (config) => {
+-    config.modResults.NSLocationAlwaysAndWhenInUseUsageDescription =
+-      locationAlwaysAndWhenInUsePermission ||
+-      config.modResults.NSLocationAlwaysAndWhenInUseUsageDescription ||
+-      LOCATION_USAGE;
+-    config.modResults.NSLocationAlwaysUsageDescription =
+-      locationAlwaysPermission ||
+-      config.modResults.NSLocationAlwaysUsageDescription ||
+-      LOCATION_USAGE;
+     config.modResults.NSLocationWhenInUseUsageDescription =
+       locationWhenInUsePermission ||
+       config.modResults.NSLocationWhenInUseUsageDescription ||

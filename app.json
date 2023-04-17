@@ -16,11 +16,12 @@
       "**/*"
     ],
     "ios": {
-      "buildNumber": "6",
+      "buildNumber": "7",
       "supportsTablet": true,
       "bundleIdentifier": "com.xfated.crumbleapp",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Turning on location settings allow us to help you find places near you. This can be changed later in the settings app."
+        "UIBackgroundModes": [],
+        "NSLocationWhenInUseUsageDescription": "Turning on location settings allow us to help you find places near you. This can be changed later in the settings app.",
       }
     },
     "android": {
@@ -28,7 +29,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
+      }, 
       "softwareKeyboardLayoutMode": "pan",
       "package": "com.xfated.crumbleapp"
     },

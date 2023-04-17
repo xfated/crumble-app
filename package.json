@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@react-navigation/native": "^6.1.6",
@@ -21,6 +22,7 @@
     "expo-linking": "~4.0.1",
     "expo-location": "^15.1.1",
     "expo-status-bar": "~1.4.4",
+    "patch-package": "^6.5.1",
     "react": "18.2.0",
     "react-native": "0.71.4",
     "react-native-gesture-handler": "^2.9.0",
