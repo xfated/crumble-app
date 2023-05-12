@@ -20,7 +20,6 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.xfated.crumbleapp",
       "infoPlist": {
-        "UIBackgroundModes": [],
         "NSLocationWhenInUseUsageDescription": "Turning on location settings allow us to help you find places near you. This can be changed later in the settings app.",
       }
     },

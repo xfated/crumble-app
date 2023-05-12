@@ -13,9 +13,13 @@ const GroupScreen = () => {
     const {fontScale} = useWindowDimensions()
     const styles = makeStyles(fontScale)
 
+    const [likePressed, setLikePressed] = useState(false)
     const handleLike = async () => {
+        if (likePressed) return;
+        setLikePressed(true);
         await places.groupAddLike(places.nearbyPlacesDetails[places.curPlaceIdx].place_id)
         places.goNextPlace();
+        setLikePressed(false);
     };
     const handleDislike = async() => {
         places.goNextPlace();
