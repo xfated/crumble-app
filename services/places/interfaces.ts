@@ -1,3 +1,12 @@
+interface Location {
+	lat: number;
+	lng: number;
+}
+
+export interface Geometry {
+	location: Location;
+}
+
 // Place Details
 export interface PhotoRow {
     id?: number;
