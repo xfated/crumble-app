@@ -19,9 +19,9 @@ const getNearbyPlaces = async (category: string, lat: number, long: number, radi
         })
     
     if (error) {
-        return buildFailureResponse(error)
+        return buildFailureResponse<NearbyPlacesRes>(error)
     }
-    return buildSuccessResponse(data)
+    return buildSuccessResponse<NearbyPlacesRes>(data)
 }
 
 interface CreateGroupRes {
@@ -42,9 +42,9 @@ const createGroup = async (category: string, min_match: number, lat: number, lon
         })
     
     if (error) {
-        return buildFailureResponse(error)
+        return buildFailureResponse<CreateGroupRes>(error)
     }
-    return buildSuccessResponse(data)
+    return buildSuccessResponse<CreateGroupRes>(data)
 }
 
 interface JoinGroupRes {
@@ -62,9 +62,9 @@ const joinGroup = async (group_id: string): Promise<ApiResponse<JoinGroupRes>> =
         })
     
     if (error) {
-        return buildFailureResponse(error)
+        return buildFailureResponse<JoinGroupRes>(error)
     }
-    return buildSuccessResponse(data)
+    return buildSuccessResponse<JoinGroupRes>(data)
 }
 
 interface GroupGetNearbyPlacesRes {
@@ -82,9 +82,9 @@ const groupGetNearbyPlaces = async (group_id: string, next_page_token: string): 
         })
     
     if (error) {
-        return buildFailureResponse(error)
+        return buildFailureResponse<GroupGetNearbyPlacesRes>(error)
     }
-    return buildSuccessResponse(data)
+    return buildSuccessResponse<GroupGetNearbyPlacesRes>(data)
 }
 
 
@@ -101,9 +101,9 @@ const groupAddLike = async (group_id: string, place_id: string): Promise<ApiResp
         })
     
     if (error) {
-        return buildFailureResponse(error)
+        return buildFailureResponse<AddGroupLikeRes>(error)
     }
-    return buildSuccessResponse(data)
+    return buildSuccessResponse<AddGroupLikeRes>(data)
 }
 
 interface GroupHasMatchRes {
@@ -118,9 +118,9 @@ const groupHasMatch = async (group_id: string): Promise<ApiResponse<GroupHasMatc
         })
     
     if (error) {
-        return buildFailureResponse(error)
+        return buildFailureResponse<GroupHasMatchRes>(error)
     }
-    return buildSuccessResponse(data)
+    return buildSuccessResponse<GroupHasMatchRes>(data)
 }
 
 export const placeService = {

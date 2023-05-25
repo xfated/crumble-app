@@ -12,9 +12,9 @@ const autocompleteAddress = async (input: string): Promise<ApiResponse<Autocompl
         })
     
     if (error) {
-        return buildFailureResponse(error)
+        return buildFailureResponse<AutocompleteRes>(error)
     }
-    return buildSuccessResponse(data)
+    return buildSuccessResponse<AutocompleteRes>(data)
 }
 
 export const autocomplete = {

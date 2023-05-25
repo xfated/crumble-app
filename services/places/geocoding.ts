@@ -15,9 +15,9 @@ const AddressToLatLng = async (address: string): Promise<ApiResponse<GeocodingDe
         })
     
     if (error) {
-        return buildFailureResponse(error)
+        return buildFailureResponse<GeocodingDetails>(error)
     }
-    return buildSuccessResponse(data)
+    return buildSuccessResponse<GeocodingDetails>(data)
 }
 
 const LatLngToAddress = async (lat: number, lng: number) => {
@@ -29,9 +29,9 @@ const LatLngToAddress = async (lat: number, lng: number) => {
         })
     
     if (error) {
-        return buildFailureResponse(error)
+        return buildFailureResponse<GeocodingDetails>(error)
     }
-    return buildSuccessResponse(data)   
+    return buildSuccessResponse<GeocodingDetails>(data)   
 }
 
 export const geocoding = {
