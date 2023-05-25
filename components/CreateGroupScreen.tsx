@@ -1,6 +1,6 @@
 import { useState, memo } from 'react';
 import { usePlace } from "../contexts/PlacesContext";
-import { View, Text, StyleSheet, SafeAreaView, useWindowDimensions, Dimensions, TextInput, Modal } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, useWindowDimensions, TextInput } from "react-native";
 import { themeStyle } from "./styles";
 import { createErrorAlert } from './ui_components/ErrorAlert';
 import { NavigationProp } from '@react-navigation/native';
@@ -9,6 +9,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 import CustomButton from './ui_components/CustomButton';
 import { RenderCategory } from './Categories/RenderCategory';
 import Spinner from 'react-native-loading-spinner-overlay/lib';
+import PlaceAutocompleteInput from './ui_components/PlaceAutocomplete';
 
 const RADIUS_OPTIONS = [100, 200, 300, 400, 500, 700, 1000, 2000, 3000, 5000]
 const DEFAULT_RADIUS = 400
@@ -25,14 +26,30 @@ const CreateGroupScreen: React.FC<CreateGroupScreenProps> = ({ navigation }) => 
     // Start Group
     const [minToMatch, setMinToMatch] = useState("")
     const [radius, setRadius] = useState(DEFAULT_RADIUS)
-    
+    const [targetLoc, setTargetLoc] = useState<null | { lat: number; lng: number;}>(null) // stores location to find nearby places
+    const updateTargetLoc = (lat: number, lng: number) => {
+        setTargetLoc(
+            {
+                lat,
+                lng
+            }
+        )
+    }
     const handleStartGroup = async () => {
         if (minToMatch.length === 0) {
             createErrorAlert("Please specify number of people")
             return
         }
         place.resetPlaces()
-        const success = await place.createGroup(parseInt(minToMatch), radius, place.categoryInfo.searchType)
+
+        // Get location for search
+        if (!targetLoc) {
+            createErrorAlert("Unable to get location")
+            return
+        }
+        
+        // Create group
+        const success = await place.createGroup(targetLoc.lat, targetLoc.lng, parseInt(minToMatch), radius, place.categoryInfo.searchType)
         if (success) {
             navigation.navigate(Screens.GROUP)
         }
@@ -61,6 +78,13 @@ const CreateGroupScreen: React.FC<CreateGroupScreenProps> = ({ navigation }) => 
                     <View style={styles.inputWrapper}>
                         <View style={styles.inputSection}>
                             <View style={{height: "100%"}}>
+                                <PlaceAutocompleteInput 
+                                    getCurrentLocation={place.getCurrentLocation}
+                                    updateTargetLoc={updateTargetLoc}/>
+                            </View>
+                        </View>
+                        <View style={styles.inputSection}>
+                            <View style={{height: "100%"}}>
                                 <TextInput 
                                     style={themeStyle.textInput} 
                                     placeholder="Number of People" 
@@ -77,7 +101,7 @@ const CreateGroupScreen: React.FC<CreateGroupScreenProps> = ({ navigation }) => 
                                 <View style={themeStyle.dropdownContainer}>
                                     <View style={{width: "60%"}}>
                                         <Text style={themeStyle.dropdownLabel}>
-                                            {"How far are you willing to travel?"}
+                                            {"How far away?"}
                                         </Text>
                                     </View>
                                     <View style={{height: "80%", width: "30%"}}>
@@ -103,9 +127,24 @@ const CreateGroupScreen: React.FC<CreateGroupScreenProps> = ({ navigation }) => 
                         </View>
                     </View>
                     <View style={styles.buttonWrapper}>
+                        { !targetLoc && 
+                            <Text style={{
+                                width: "100%",
+                                color: "red",
+                                padding: 5,
+                                fontSize: 14 / fontScale,
+                                textAlign: "center",
+                            }}>
+                                Select location and number of people
+                            </Text>
+                        }
                         <View style={styles.buttonBox}>
-                            <CustomButton title="Start a group" // TBD
-                                onPress={handleStartGroup}/>
+                            {
+                                <CustomButton 
+                                    title="Start a group" // TBD
+                                    disabled={!targetLoc}
+                                    onPress={handleStartGroup}/>
+                            }
                         </View>
                     </View>
                 </View>
@@ -130,7 +169,7 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
         alignItems: "center"
     },
     contentWrapper: {
-        height: "70%",
+        height: "80%",
         paddingLeft: "5%",
         paddingRight: "5%",
         justifyContent: "center",
@@ -140,14 +179,14 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
         height: "20%"
     },
     inputWrapper: {
-        height: 180
+        height: 200,
     },
     inputSection: {
         padding: 10,
         flex: 1,    
     },
     buttonWrapper: {
-        height: 100,
+        height: "20%",
         justifyContent: "center",
         alignItems: "center",
     },

@@ -9,8 +9,8 @@ import { CategoryInfo, categories } from "../components/Categories/Categories";
 
 enum QueryType {
     INIT,
-    CREATE_GROUP,
-    JOIN_GROUP
+    ASK_LOC,
+    GET_LOCATION_FOR_NEARBY_PLACES
 }
 
 type PlacesContextType = {
@@ -25,6 +25,7 @@ type PlacesContextType = {
     resetPlaces: () => void,
     goNextPlace: () => Promise<void>,
     // for create group
+    getCurrentLocation: () => Promise<Location.LocationObject | null>
     categoryInfo: CategoryInfo,
     handleCategorySelect: (categoryInfo: CategoryInfo) => void,
 
@@ -32,7 +33,7 @@ type PlacesContextType = {
     groupId: string | null,
     groupMatch: string | null,
     getGroupMatch: () => PlaceDetailRow | null,
-    createGroup: (min_match: number, radius: number, category: string) => Promise<boolean>,
+    createGroup: (lat: number, lng: number, min_match: number, radius: number, category: string) => Promise<boolean>,
     joinGroup: (group_id: string) => Promise<boolean>,
     groupAddLike: (place_id: string) => Promise<boolean>,
     groupHasMatch: () => Promise<boolean>
@@ -58,14 +59,15 @@ const PlaceContext = createContext<PlacesContextType>({
     resetPlaces: () => {},
     goNextPlace: async () => {},
     // for create group
+    getCurrentLocation: async () => {return null},
     categoryInfo: categories.Food,
-    handleCategorySelect: (cateyInfo: CategoryInfo) => {},
+    handleCategorySelect: (categoryInfo: CategoryInfo) => {},
 
     // for group
     groupId: null,
     groupMatch: null,
     getGroupMatch: () => { return null },
-    createGroup: async (min_match: number, radius: number, category: string) => { return false },
+    createGroup: async (lat: number, lng: number, min_match: number, radius: number, category: string) => { return false },
     joinGroup: async (group_id: string) => { return false },
     groupAddLike: async (place_id: string) => { return false },
     groupHasMatch: async () => { return false }
@@ -74,11 +76,15 @@ const PlaceContext = createContext<PlacesContextType>({
 export const usePlace = () => useContext(PlaceContext);
 
 export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children }) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [spinnerContent, setSpinnerContent] = useState("Loading...")
+    const [errorMessage, setErrorMessage] = useState("");
+    
     // LOCATION UTILS
-    const [location, setLocation] = useState<Location.LocationObject | null>(null);
+    const [location, setLocation] = useState<Location.LocationObject | null>(null); // stores user's current location
     const reqLocPerms = async (queryType: QueryType): Promise<Location.LocationObject | null> => {
         let { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
-        if (queryType === QueryType.CREATE_GROUP && status !== 'granted') {
+        if (queryType === QueryType.ASK_LOC && status !== 'granted') {
             if (!canAskAgain) {
                 createActionAlert("Error", 
                     "Turning on location settings allow us to find places near you which is required to start a group. Press 'OK' to go to settings. This can be changed later in the settings app.",
@@ -94,6 +100,15 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
         }
         return null
     }
+    const getCurrentLocation = async (): Promise<Location.LocationObject | null> => {
+        // Fetch device location
+        let locRes = null
+        setIsLoading(true);
+        setSpinnerContent("Getting your location")
+        locRes = await reqLocPerms(QueryType.ASK_LOC);
+        setIsLoading(false);
+        return locRes;
+    }
 
     useEffect(() => { // Try to get on start up
         reqLocPerms(QueryType.INIT)
@@ -106,9 +121,6 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     }
 
     // NEARBY PLACES UTILS
-    const [isLoading, setIsLoading] = useState(false);
-    const [spinnerContent, setSpinnerContent] = useState("Loading...")
-    const [errorMessage, setErrorMessage] = useState("");
     const [nearbyPlacesDetails, setNearbyPlacesDetails] = useState<PlaceDetailRow[]>([])
     const [nextPageToken, setNextPageToken] = useState<string | null>("");
     const updateNearbyPlacesDetails = (places: PlaceDetailRow[]) => {
@@ -117,7 +129,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
     const fetchNearbyPlaces = async (next_page_token: string, radius: number, category: string): Promise<boolean> => {
         let locRes = null
         setIsLoading(true);
-        locRes = await reqLocPerms(QueryType.CREATE_GROUP);
+        locRes = await reqLocPerms(QueryType.GET_LOCATION_FOR_NEARBY_PLACES);
         setIsLoading(false);
         let locationObj = locRes ?? location
         if (locationObj === null) {
@@ -157,43 +169,30 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
         }
         return filteredPlaces[0]
     }
-    const createGroup = async (min_match: number, radius: number, category: string): Promise<boolean> => {
-        let locRes = null
+    const createGroup = async (lat: number, lng: number, min_match: number, radius: number, category: string): Promise<boolean> => {
         setIsLoading(true);
-        setSpinnerContent("Getting your location")
-        locRes = await reqLocPerms(QueryType.CREATE_GROUP);
-        setIsLoading(false);
-        let locationObj = locRes ?? location
-        if (locationObj === null) {
-            return false
-        }
-        const latitude = locationObj?.coords.latitude ? locationObj.coords.latitude : null;
-        const longitude = locationObj?.coords.longitude ? locationObj.coords.longitude : null;
-        if (latitude && longitude) {
-            setIsLoading(true);
-            setSpinnerContent("Getting places and Creating group ...")
-            const response = await placeService.createGroup(category, min_match, latitude, longitude, radius)        
-            if (response.success && response.data !== null) {
-                const res = response.data    
-                updateNearbyPlacesDetails(res.results)
-                setNextPageToken(res.next_page_token ?? null)
-                setGroupId(res.group_id)
-                setErrorMessage("")
-            } else {
-                console.log(response.message)
-                setErrorMessage("Server is facing too many requests. Please try again later");
-                setIsLoading(false);
-                return false;
-            }
+        setSpinnerContent("Creating group ...")
+        const response = await placeService.createGroup(category, min_match, lat, lng, radius)        
+        if (response.success && response.data !== null) {
+            const res = response.data    
+            updateNearbyPlacesDetails(res.results)
+            setNextPageToken(res.next_page_token ?? null)
+            setGroupId(res.group_id)
+            setErrorMessage("")
+        } else {
+            console.log(response.message)
+            setErrorMessage("Server is facing too many requests. Please try again later");
             setIsLoading(false);
+            return false;
         }
+        setIsLoading(false);
         return true;
     }
     const joinGroup = async (group_id: string): Promise<boolean> => {
         setIsLoading(true);
         setSpinnerContent("Looking for group ...")
         // Get cur location data for rendering distance
-        await reqLocPerms(QueryType.JOIN_GROUP);
+        await reqLocPerms(QueryType.GET_LOCATION_FOR_NEARBY_PLACES);
         const response = await placeService.joinGroup(group_id)
         if (response.success && response.data !== null) {
             const res = response.data
@@ -318,6 +317,7 @@ export const PlaceContextProvider: React.FC<PlacesContextProps> = ({ children })
                 location,
                 spinnerContent,
                 reqLocPerms,
+                getCurrentLocation,
                 fetchNearbyPlaces,
                 isLoading,
                 errorMessage,
