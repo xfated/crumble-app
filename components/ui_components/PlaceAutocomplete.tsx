@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, memo } from 'react';
-import { View, useWindowDimensions, StyleSheet } from 'react-native';
+import { View, useWindowDimensions, StyleSheet, FlatList,
+    Text, TouchableOpacity } from 'react-native';
 import { LocationObject } from 'expo-location';
 import { SearchBar } from '@rneui/themed';
 import { debounce } from 'lodash';
@@ -12,7 +13,7 @@ import { createErrorAlert } from './ErrorAlert';
 
 interface AutocompleteProps {
     getCurrentLocation: () => Promise<LocationObject | null>
-    updateTargetLoc: (lat: number, lng: number) => void;
+    updateTargetLoc: (lat?: number, lng?: number) => void;
 }
 
 const PlaceAutocompleteInput: React.FC<AutocompleteProps> = (props) => {
@@ -31,7 +32,6 @@ const PlaceAutocompleteInput: React.FC<AutocompleteProps> = (props) => {
             const predictions = await autocomplete.autocompleteAddress(inputText)
             setPredictionsLoading(false)
             setPredictions(predictions.data?.predictions ?? [])
-            console.log(predictions)
         }
     }
     useEffect(() => {
@@ -41,6 +41,20 @@ const PlaceAutocompleteInput: React.FC<AutocompleteProps> = (props) => {
         const callback = () => predictionRef.current?.()
         return debounce(callback, 500)
     }, []);
+
+    const selectPrediction = async (prediction: string) => {
+        // Reset predictions
+        setPredictions([])
+        
+        // Get lat lng
+        const geometry = await geocoding.AddressToLatLng(prediction)
+        if (geometry.data?.geometry.location) {
+            props.updateTargetLoc(geometry.data.geometry.location.lat, geometry.data.geometry.location.lng)
+        }
+
+        // Update input text to address
+        setInputText(prediction)
+    }
 
     // Handle location
     const useCurrentLocation = async () => {
@@ -64,21 +78,44 @@ const PlaceAutocompleteInput: React.FC<AutocompleteProps> = (props) => {
 
     return (
         <View style={styles.containerWrapper}>
-            <View style={{width: "65%"}}>
+            <View style={styles.autocompleteWrapper}>
                 <SearchBar 
                     platform="default"
                     lightTheme={true}
                     placeholder="Select Location"
                     showLoading={predictionsLoading}
                     onChangeText={(text) => {
+                        if (text === inputText) {
+                            return
+                        }
                         getPredictionsWithDebounce();
                         setInputText(text);
+
+                        // reset predictions while typing
+                        setPredictions([])
+
+                        // reset target loc
+                        props.updateTargetLoc()
                     }}
                     containerStyle={styles.containerStyle}
                     inputContainerStyle={styles.inputContainerStyle}
                     inputStyle={styles.inputStyle}
                     value={inputText}
                 />
+                <View style={styles.predictionsWrapper}>
+                    <FlatList
+                        data={predictions}
+                        keyExtractor={(address: string, index: number) => address}
+                        alwaysBounceVertical={false}
+                        renderItem={({item}) => {
+                            return (
+                                <TouchableOpacity style={styles.predictionRow} onPress={() => selectPrediction(item)}>
+                                    <Text style={styles.predictionText}>{item}</Text>
+                                </TouchableOpacity>
+                            )
+                        }}
+                    />
+                </View>
             </View>
             <View style={{width: "30%"}}>
                 <CustomButton title="Use current location" // TBD
@@ -98,6 +135,10 @@ const makeStyle = (fontScale: number) => StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between"
     },
+    autocompleteWrapper: {
+        width: "68%",
+        position: "relative"
+    },
     containerStyle: {
         padding: 0,
         borderRadius: 4,
@@ -115,6 +156,24 @@ const makeStyle = (fontScale: number) => StyleSheet.create({
         backgroundColor: "transparent",
     },
     inputStyle: {
-        color: "black"
+        color: "black",
+        fontSize: 16 / fontScale
     },
+    predictionsWrapper: {
+        position: 'absolute',
+        top: "100%",
+        width: "100%",
+        maxHeight: 200,
+    },
+    predictionRow: {
+        borderTopWidth: 1,
+        borderTopColor: "black"
+    },
+    predictionText: {
+        paddingLeft: 5,
+        paddingRight: 5,
+        paddingTop: 8,
+        paddingBottom: 8,
+        backgroundColor: 'rgb(242, 237, 194)',
+    }
 })

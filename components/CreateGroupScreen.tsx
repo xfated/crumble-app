@@ -27,7 +27,11 @@ const CreateGroupScreen: React.FC<CreateGroupScreenProps> = ({ navigation }) => 
     const [minToMatch, setMinToMatch] = useState("")
     const [radius, setRadius] = useState(DEFAULT_RADIUS)
     const [targetLoc, setTargetLoc] = useState<null | { lat: number; lng: number;}>(null) // stores location to find nearby places
-    const updateTargetLoc = (lat: number, lng: number) => {
+    const updateTargetLoc = (lat?: number, lng?: number) => {
+        if (!(lat && lng)) {
+            setTargetLoc(null)
+            return
+        }
         setTargetLoc(
             {
                 lat,
@@ -49,6 +53,7 @@ const CreateGroupScreen: React.FC<CreateGroupScreenProps> = ({ navigation }) => 
         }
         
         // Create group
+        console.log(targetLoc)
         const success = await place.createGroup(targetLoc.lat, targetLoc.lng, parseInt(minToMatch), radius, place.categoryInfo.searchType)
         if (success) {
             navigation.navigate(Screens.GROUP)
@@ -76,10 +81,14 @@ const CreateGroupScreen: React.FC<CreateGroupScreenProps> = ({ navigation }) => 
                             />
                     </View>
                     <View style={styles.inputWrapper}>
-                        <View style={styles.inputSection}>
+                        <View style={{
+                            ...styles.inputSection,
+                            zIndex: 100
+                            }}>
                             <View style={{height: "100%"}}>
                                 <PlaceAutocompleteInput 
                                     getCurrentLocation={place.getCurrentLocation}
+                                    
                                     updateTargetLoc={updateTargetLoc}/>
                             </View>
                         </View>
@@ -101,7 +110,7 @@ const CreateGroupScreen: React.FC<CreateGroupScreenProps> = ({ navigation }) => 
                                 <View style={themeStyle.dropdownContainer}>
                                     <View style={{width: "60%"}}>
                                         <Text style={themeStyle.dropdownLabel}>
-                                            {"How far away?"}
+                                            {"Distance from location"}
                                         </Text>
                                     </View>
                                     <View style={{height: "80%", width: "30%"}}>
@@ -127,7 +136,7 @@ const CreateGroupScreen: React.FC<CreateGroupScreenProps> = ({ navigation }) => 
                         </View>
                     </View>
                     <View style={styles.buttonWrapper}>
-                        { !targetLoc && 
+                        { !(targetLoc && minToMatch) && 
                             <Text style={{
                                 width: "100%",
                                 color: "red",
@@ -180,6 +189,7 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
     },
     inputWrapper: {
         height: 200,
+        zIndex: 100
     },
     inputSection: {
         padding: 10,
@@ -191,7 +201,7 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
         alignItems: "center",
     },
     buttonBox: {
-        height: "50%",
+        height: "40%",
         aspectRatio: 3
     }
 })
