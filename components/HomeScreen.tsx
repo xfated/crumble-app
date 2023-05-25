@@ -8,7 +8,7 @@ import { themeStyle } from "./styles";
 import { usePlace } from '../contexts/PlacesContext';
 import { createErrorAlert } from "./ui_components/ErrorAlert";
 import Spinner from "react-native-loading-spinner-overlay";
-import { placeService } from "../services/places/places";
+import { checkVersion } from "../services/supabase";
 import InvalidVersionModal from "./ui_components/InvalidVersionModal";
 import { CategoryInfo, categories } from "./Categories/Categories";
 import { RenderCategory } from "./Categories/RenderCategory";
@@ -39,7 +39,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     const [versionIsValid, setVersionIsValid] = useState(true);
     useEffect(() => {
         (async () => {
-            const response = await placeService.checkVersion()
+            const response = await checkVersion()
             if (response.success && response.data !== null) {
                 setVersionIsValid(response.data.result)
             }
