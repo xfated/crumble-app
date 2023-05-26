@@ -1,24 +1,46 @@
-import { useState, memo} from "react"
+import { useState, useEffect, memo} from "react"
 import { View, Text, TextInput, TouchableOpacity, useWindowDimensions, StyleSheet } from "react-native"
 import CustomButton from "./CustomButton"
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 import { themeStyle } from "../styles"
 
 import { addFeedback } from "../../services/places/feedback"
+import { storage } from "../../services/async_storage"
+
 
 const FeedbackPopup = () => {
     const {height, width, fontScale} = useWindowDimensions()
     const styles = makeStyles(height, width, fontScale)
      
     // Form display
-    const [showForm, setShowForm] = useState(true)
+    const [showForm, setShowForm] = useState(false)
     const toggleShowForm = () => {
         setShowForm(prev => !prev)
     }
+    // Show form if never added feedback before
+    const STORED_FEEDBACK_KEY = 'stored_feedback'
+    const checkIfAddedFeedback = async () => {
+        const storedFeedback = await storage.getData(STORED_FEEDBACK_KEY)
+        if (!storedFeedback) {
+            setShowForm(true)
+        }
+    }
+    const setAddedFeedback = async () => {
+        await storage.storeData(STORED_FEEDBACK_KEY, "true")
+    }
+    useEffect(() => {
+        checkIfAddedFeedback()
+    }, [])
 
     // Feedback
     const [rating, setRating] = useState(0);
     const [description, setDescription] = useState("")
+
+    const handleSubmit = () => {
+        setAddedFeedback();
+        addFeedback(rating, description);
+        setShowForm(false);
+    }
 
     return (
         <View style={styles.feedbackContainer}>
@@ -67,10 +89,7 @@ const FeedbackPopup = () => {
                             { (rating > 0) &&
                                 <CustomButton 
                                     title="Submit"
-                                    onPress={() => {
-                                        addFeedback(rating, description);
-                                        setShowForm(false);
-                                    }}/>
+                                    onPress={handleSubmit}/>
                             }
                         </View>
                     </View>
