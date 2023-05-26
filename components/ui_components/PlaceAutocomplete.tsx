@@ -74,6 +74,9 @@ const PlaceAutocompleteInput: React.FC<AutocompleteProps> = (props) => {
             return
         }
         setInputText(currentAddress)   
+
+        // Clear predictions if using current loc
+        setPredictions([])
     }
 
     return (

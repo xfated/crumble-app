@@ -3,6 +3,7 @@ import { PlaceDetailRow } from "../../services/places/interfaces";
 import { LocationObject } from 'expo-location';
 import PlaceCard from "./PlaceCard";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import FeedbackModal from "../ui_components/FeedbackPopup";
 
 interface PlacesMatchDisplayProps {
     place: PlaceDetailRow | null;
@@ -39,6 +40,7 @@ const PlacesMatchDisplay = (props: PlacesMatchDisplayProps) => {
                     <Text>No Match Yet</Text>
                 }
             </View>
+            <FeedbackModal />
         </View>
     )
 }

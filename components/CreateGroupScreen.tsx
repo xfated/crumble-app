@@ -53,7 +53,6 @@ const CreateGroupScreen: React.FC<CreateGroupScreenProps> = ({ navigation }) => 
         }
         
         // Create group
-        console.log(targetLoc)
         const success = await place.createGroup(targetLoc.lat, targetLoc.lng, parseInt(minToMatch), radius, place.categoryInfo.searchType)
         if (success) {
             navigation.navigate(Screens.GROUP)

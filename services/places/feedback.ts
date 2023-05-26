@@ -1,6 +1,6 @@
-import { supabase, ApiResponse, buildFailureResponse, buildSuccessResponse } from '../supabase'
+import { supabase } from '../supabase'
 
-const addFeedback = async (rating: number, description: string) => {
+export const addFeedback = async (rating: number, description: string) => {
     const { data, error } = await supabase.functions.invoke('geocoding-get-latlong', {
         body: {
                 rating,
