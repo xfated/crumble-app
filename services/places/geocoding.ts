@@ -8,12 +8,11 @@ interface GeocodingDetails {
 }
 
 const AddressToLatLng = async (address: string): Promise<ApiResponse<GeocodingDetails>> => {
-    const { data, error } = await supabase.functions.invoke('geocoding-get-latlong', {
+    const { data, error } = await supabase.functions.invoke('geocoding', {
         body: {
                 address
             }
         })
-    
     if (error) {
         return buildFailureResponse<GeocodingDetails>(error)
     }
@@ -21,7 +20,7 @@ const AddressToLatLng = async (address: string): Promise<ApiResponse<GeocodingDe
 }
 
 const LatLngToAddress = async (lat: number, lng: number) => {
-    const { data, error } = await supabase.functions.invoke('geocoding-get-address', {
+    const { data, error } = await supabase.functions.invoke('geocoding', {
         body: {
                 lat,
                 lng
