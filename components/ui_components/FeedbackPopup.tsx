@@ -7,7 +7,6 @@ import { themeStyle } from "../styles"
 import { addFeedback } from "../../services/places/feedback"
 import { storage } from "../../services/async_storage"
 
-
 const FeedbackPopup = () => {
     const {height, width, fontScale} = useWindowDimensions()
     const styles = makeStyles(height, width, fontScale)
@@ -46,8 +45,8 @@ const FeedbackPopup = () => {
         <View style={styles.feedbackContainer}>
             <View style={styles.feedbackContentWrapper}>
                 <TouchableOpacity style={styles.feedbackIcon} onPress={toggleShowForm}>
-                    <MaterialCommunityIcons name={"message-alert"} size={50} color="black" /> 
-                    <Text>Feedback</Text>
+                    <MaterialCommunityIcons name={"message-alert"} size={30} color="black" /> 
+                    <Text style={{fontSize: 14 / fontScale}}>Feedback</Text>
                 </TouchableOpacity>
                 <View style={[
                     styles.feedbackInputContainer,
@@ -86,11 +85,10 @@ const FeedbackPopup = () => {
                                 />
                         </View>
                         <View style={[styles.fullWidth, styles.feedbackFormSubmit]}>
-                            { (rating > 0) &&
-                                <CustomButton 
-                                    title="Submit"
-                                    onPress={handleSubmit}/>
-                            }
+                            <CustomButton 
+                                title="Submit"
+                                disabled={(rating == 0)}
+                                onPress={handleSubmit}/>
                         </View>
                     </View>
                 </View>
