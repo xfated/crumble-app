@@ -31,7 +31,7 @@ const PlaceAutocompleteInput: React.FC<AutocompleteProps> = (props) => {
             setPredictionsLoading(true)
             const predictions = await autocomplete.autocompleteAddress(inputText)
             setPredictionsLoading(false)
-            setPredictions(predictions.data?.predictions ?? [])
+            setPredictions(predictions)
         }
     }
     useEffect(() => {
