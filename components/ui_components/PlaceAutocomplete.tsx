@@ -166,7 +166,7 @@ const makeStyle = (fontScale: number) => StyleSheet.create({
         position: 'absolute',
         top: "100%",
         width: "100%",
-        maxHeight: 200,
+        backgroundColor: "white"
     },
     predictionRow: {
         borderTopWidth: 1,

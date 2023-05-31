@@ -58,7 +58,7 @@ const autocompleteAddress = async (input: string): Promise<string[]> => {
             }
         })
     }
-    return predictions
+    return predictions.slice(0, 8) // slice so that display does not overflow
 }
 
 export const autocomplete = {
