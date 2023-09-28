@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useEffect} from 'react';
 import { StyleSheet, View } from 'react-native';
 import IntroScreen from './components/IntroScreen'
 import HomeScreen from './components/HomeScreen';
@@ -9,6 +9,7 @@ import { Screens } from './components/constants';
 import IndividualSearchScreen from './components/IndividualSearchScreen';
 import GroupScreen from './components/GroupScreen';
 import CreateGroupScreen from './components/CreateGroupScreen';
+import Spinner from 'react-native-loading-spinner-overlay/lib';
 
 import useLaunchState from './services/firstlaunch'
 
@@ -20,6 +21,13 @@ export default function App() {
   useEffect(() => {
     checkFirstLaunch();
   }, [])
+
+  if (isLoading) {
+    return <Spinner
+        textContent="Loading..."
+        overlayColor="rgba(25,25,25,0.5)"
+    />
+  }
 
   return (
     <PlaceContextProvider>
