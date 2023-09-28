@@ -18,7 +18,9 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ navigation }) => {
     const setSliderPage = (event: any) => {
         const { currentPage } = sliderState;
         const { x } = event.nativeEvent.contentOffset;
-        const indexOfNextScreen = Math.floor(x / width);
+
+        // 0.001 is required for android as contentOffset is a bit smaller than the width
+        const indexOfNextScreen = Math.floor((x + 0.001) / width);
         if (indexOfNextScreen !== currentPage) {
         setSliderState({
             ...sliderState,
