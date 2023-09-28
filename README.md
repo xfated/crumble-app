@@ -55,7 +55,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](https://ch
 ## References
 
 -   React Native Documentation: [Getting Started](https://reactnative.dev/docs/getting-started)
--   MongoDB Documentation: [Supabase Manual](https://supabase.com/docs)
+-   Supabase Documentation: [Supabase Manual](https://supabase.com/docs)
 
 ----------
 
