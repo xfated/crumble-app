@@ -1,5 +1,5 @@
-import {useState} from 'react';
-import {storage} from './async_storage'
+import { useState } from 'react';
+import { storage } from './async_storage'
 
 const useLaunchState = () => {
     const [hasLaunched, setHasLaunched] = useState(false);
