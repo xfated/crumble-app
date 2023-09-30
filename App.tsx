@@ -1,4 +1,4 @@
-import {useEffect} from 'react';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import IntroScreen from './components/IntroScreen'
 import HomeScreen from './components/HomeScreen';
