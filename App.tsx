@@ -42,7 +42,7 @@ export default function App() {
           >
             {!hasLaunched ? 
               <>
-                <Stack.Screen name={Screens.INTRO} component={IntroScreen}/>
+                { !hasLaunched && <Stack.Screen name={Screens.INTRO} component={IntroScreen}/> }
                 <Stack.Screen name={Screens.HOME} component={HomeScreen} options={{ headerBackVisible: false }}/>
                 <Stack.Screen name={Screens.INDIVIDUAL} component={IndividualSearchScreen} />
                 <Stack.Screen name={Screens.GROUP} component={GroupScreen} />
