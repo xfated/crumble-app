@@ -45,14 +45,14 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ navigation }) => {
 
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView
-            style={{ flex: 1 }}
-            horizontal={true}
-            scrollEventThrottle={16}
-            pagingEnabled={true}
-            showsHorizontalScrollIndicator={false}
-            onScroll={(event: any) => {
-                setSliderPage(event);
-            }}
+              style={{ flex: 1 }}
+              horizontal={true}
+              scrollEventThrottle={16}
+              pagingEnabled={true}
+              showsHorizontalScrollIndicator={false}
+              onScroll={(event: any) => {
+                  setSliderPage(event);
+              }}
             >
             <View style={{ width, height }}>
                 <Image
