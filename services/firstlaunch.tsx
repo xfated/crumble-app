@@ -7,7 +7,7 @@ const useLaunchState = () => {
 
     const checkFirstLaunch = async () => {
         const firstLaunch = await storage.getData("HAS_LAUNCH");
-        if (firstLaunch != null) {
+        if (firstLaunch !== null) {
             setHasLaunched(true);
         } else {
             await storage.storeData("HAS_LAUNCH", 'true');
