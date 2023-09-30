@@ -28,7 +28,7 @@ Once a unanimous match is found, all members in the group are instantly notified
 
 ## How to Use
 
-1.  **Download and Install**: Get Crumble from [Google Play Store](https://play.google.com/) or [Apple App Store](https://apps.apple.com/us/app/crumble/id6447760921).
+1.  **Download and Install**: Get Crumble from [Google Play Store](https://play.google.com/store/apps/details?id=com.xfated.crumbleapp&pli=1) or [Apple App Store](https://apps.apple.com/us/app/crumble/id6447760921).
 2.  **Create a Group**: Invite your friends using a unique id
 3.  **Browse Places**: Look through the list of recommended food places.
 4.  **Pick Your Favorites**: Swipe right on the places you'd like to try out.
@@ -48,7 +48,7 @@ Once a unanimous match is found, all members in the group are instantly notified
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](https://chat.openai.com/c/LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
 ----------
 
@@ -59,6 +59,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](https://ch
 
 ----------
 
-For any queries, feel free to raise an issue or contact us through [our website](http://www.crumbleapp.com/).
+For any queries, feel free to raise an issue or contact us through [our website](https://crumble.date/).
 
 Happy dining with Crumble! 🍽️#   

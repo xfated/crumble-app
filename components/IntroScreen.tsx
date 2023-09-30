@@ -1,7 +1,6 @@
-import { useEffect, useState, memo } from 'react';
+import { useState } from 'react';
 import { View, Text, Image, StyleSheet, PixelRatio, StatusBar, ScrollView, SafeAreaView, useWindowDimensions, Platform } from "react-native";
 import { NavigationProp } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Screens } from './constants';
 import CustomButton from './ui_components/CustomButton';
@@ -22,16 +21,12 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ navigation }) => {
         // 0.001 is required for android as contentOffset is a bit smaller than the width
         const indexOfNextScreen = Math.floor((x + 0.001) / width);
         if (indexOfNextScreen !== currentPage) {
-        setSliderState({
-            ...sliderState,
+        setSliderState(prevState => ({
+            ...prevState,
             currentPage: indexOfNextScreen,
-        });
+        }));
         }
     };
-
-    const clearAsyncStorage = async() => {
-        console.log(await AsyncStorage.removeItem("FIRST_LAUNCH"));
-    }
 
     const handleGoNext = () => {
         navigation.navigate(Screens.HOME);
@@ -83,11 +78,10 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ navigation }) => {
                 <Text style={styles.header}>Enjoy!</Text>
                 </View>
                 <View style={styles.buttonBox}>
-                    {
-                        <CustomButton
+                    <CustomButton
                         title="Let's Go"
-                        onPress={handleGoNext}/>
-                    }
+                        onPress={handleGoNext}
+                    />
                 </View>
             </View>
             </ScrollView>
@@ -128,10 +122,10 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
         position: 'absolute',
         ...Platform.select({
             ios: {
-                bottom: 200,
+                bottom: 100,
             },
             android: {
-                bottom: 100,
+                bottom: 50,
             },
             default: {
                 bottom: 200
@@ -151,6 +145,7 @@ const makeStyles = (fontScale: number) => StyleSheet.create({
         marginLeft: 10,
     },
     buttonBox: {
+        paddingHorizontal: 5,
         height: "5%",
         justifyContent: "center",
         alignItems: "center",

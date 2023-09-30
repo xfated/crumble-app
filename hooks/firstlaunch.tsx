@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { storage } from './async_storage'
+import { useState, useEffect } from 'react';
+import { storage } from '../services/async_storage'
 
 const useLaunchState = () => {
     const [hasLaunched, setHasLaunched] = useState(false);
@@ -15,10 +15,13 @@ const useLaunchState = () => {
         setIsLoading(false);
     }
 
+    useEffect(() => {
+        checkFirstLaunch();     
+    }, [])
+
     return {
         isLoading,
-        hasLaunched,
-        checkFirstLaunch
+        hasLaunched
     }
 }
 
