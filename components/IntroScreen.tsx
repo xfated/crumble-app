@@ -15,21 +15,18 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ navigation }) => {
     const styles = makeStyles(fontScale);
 
     const setSliderPage = (event: any) => {
-        const { currentPage } = sliderState;
         const { x } = event.nativeEvent.contentOffset;
 
         // 0.001 is required for android as contentOffset is a bit smaller than the width
         const indexOfNextScreen = Math.floor((x + 0.001) / width);
         if (indexOfNextScreen !== currentPage) {
-    setCurrentPage(indexOfNextScreen)
+            setCurrentPage(indexOfNextScreen)
         }
     };
 
     const handleGoNext = () => {
         navigation.navigate(Screens.HOME);
     }
-
-    const { currentPage: pageIndex } = sliderState;
 
     return (
         <>
@@ -84,7 +81,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ navigation }) => {
             </ScrollView>
             <View style={styles.paginationWrapper}>
             {Array.from(Array(3).keys()).map((key, index) => (
-                <View style={[styles.paginationDots, { opacity: pageIndex === index ? 1 : 0.2 }]} key={index} />
+                <View style={[styles.paginationDots, { opacity: currentPage === index ? 1 : 0.2 }]} key={index} />
             ))}
             </View>
         </SafeAreaView>
