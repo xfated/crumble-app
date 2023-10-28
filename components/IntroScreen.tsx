@@ -10,7 +10,7 @@ interface IntroScreenProps {
 }
 
 const IntroScreen: React.FC<IntroScreenProps> = ({ navigation }) => {
-    const [sliderState, setSliderState] = useState({ currentPage: 0 });
+    const [currentPage, setCurrentPage] = useState(0);
     const { width, height, fontScale } = useWindowDimensions();
     const styles = makeStyles(fontScale);
 
