@@ -17,7 +17,18 @@ const getData = async (key: string) => {
     }
 }
 
+const clearData = async(key: string) => {
+    try {
+        await AsyncStorage.removeItem(`@${key}`)
+    } catch (e) {
+        console.error(`Error removing data from async storage: ${e}`)
+    }
+}
+
+
+
 export const storage = {
     storeData,
-    getData
+    getData,
+    clearData
 }

@@ -44,6 +44,7 @@ const makeStyle = (fontScale: number) => StyleSheet.create({
         alignItems: "center",
         borderColor: "grey",
         borderWidth: 1,
+        paddingHorizontal: 5,
     },
     disabledButton: {
         backgroundColor: "#f2e4c7",
